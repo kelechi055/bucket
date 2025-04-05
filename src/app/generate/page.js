@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState } from 'react';
 
 export default function GenerateBucketPage() {
@@ -32,7 +32,7 @@ export default function GenerateBucketPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/generate', {  // Corrected path
+      const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -40,13 +40,16 @@ export default function GenerateBucketPage() {
         body: JSON.stringify({ userInfo })
       });
 
-      const data = await response.text();  // Use .json()
+      const data = await response.json();
 
-      // Log the response data for debugging
       console.log('API Response:', data);
 
       if (response.ok) {
-        setBucketList(data.bucketList);  // Store the generated bucket list
+        // Parse the bucket list text to replace newline characters and escape sequences with proper HTML
+        const formattedBucketList = data.bucketList
+          .replace(/\\n/g, '<br />') // Replace newlines with <br /> for line breaks
+          .replace(/\\*\\*/g, '<strong>'); // Add proper strong tags for bold text
+        setBucketList(formattedBucketList); // Store the formatted bucket list
       } else {
         setError(data.error || 'An error occurred while generating the bucket list.');
       }
@@ -57,68 +60,140 @@ export default function GenerateBucketPage() {
   };
 
   return (
-    <div>
-      <h1>Generate Your Bucket List</h1>
-      <form onSubmit={handleSubmit}>
-        <label>Name:</label>
-        <input type="text" name="name" value={userInfo.name} onChange={handleInputChange} />
-        <br />
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-3xl font-bold text-center text-gray-700 mb-6">Generate Your Bucket List</h1>
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-lg font-medium text-gray-700">Name:</label>
+            <input
+              type="text"
+              name="name"
+              value={userInfo.name}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-medium text-gray-700">Interests:</label>
+            <input
+              type="text"
+              name="interests"
+              value={userInfo.interests}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-medium text-gray-700">Location:</label>
+            <input
+              type="text"
+              name="location"
+              value={userInfo.location}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-medium text-gray-700">Budget:</label>
+            <input
+              type="text"
+              name="budget"
+              value={userInfo.budget}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-medium text-gray-700">Solo or Social:</label>
+            <input
+              type="text"
+              name="solo_or_social"
+              value={userInfo.solo_or_social}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-medium text-gray-700">Transportation:</label>
+            <input
+              type="text"
+              name="transportation"
+              value={userInfo.transportation}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-medium text-gray-700">Max Travel Distance:</label>
+            <input
+              type="text"
+              name="travel_distance"
+              value={userInfo.travel_distance}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-medium text-gray-700">Available Times:</label>
+            <input
+              type="text"
+              name="availability"
+              value={userInfo.availability}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-medium text-gray-700">Preferred Categories:</label>
+            <input
+              type="text"
+              name="categories"
+              value={userInfo.categories}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-medium text-gray-700">Physical Limitations:</label>
+            <input
+              type="text"
+              name="limitations"
+              value={userInfo.limitations}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-medium text-gray-700">Extra Info:</label>
+            <input
+              type="text"
+              name="extra_details"
+              value={userInfo.extra_details}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-md"
+            />
+          </div>
+        </div>
 
-        <label>Interests:</label>
-        <input type="text" name="interests" value={userInfo.interests} onChange={handleInputChange} />
-        <br />
-
-        <label>Location:</label>
-        <input type="text" name="location" value={userInfo.location} onChange={handleInputChange} />
-        <br />
-
-        <label>Budget:</label>
-        <input type="text" name="budget" value={userInfo.budget} onChange={handleInputChange} />
-        <br />
-
-        <label>Solo or Social:</label>
-        <input type="text" name="solo_or_social" value={userInfo.solo_or_social} onChange={handleInputChange} />
-        <br />
-
-        <label>Transportation:</label>
-        <input type="text" name="transportation" value={userInfo.transportation} onChange={handleInputChange} />
-        <br />
-
-        <label>Max Travel Distance:</label>
-        <input type="text" name="travel_distance" value={userInfo.travel_distance} onChange={handleInputChange} />
-        <br />
-
-        <label>Available Times:</label>
-        <input type="text" name="availability" value={userInfo.availability} onChange={handleInputChange} />
-        <br />
-
-        <label>Preferred Categories:</label>
-        <input type="text" name="categories" value={userInfo.categories} onChange={handleInputChange} />
-        <br />
-
-        <label>Physical Limitations:</label>
-        <input type="text" name="limitations" value={userInfo.limitations} onChange={handleInputChange} />
-        <br />
-
-        <label>Extra Info:</label>
-        <input type="text" name="extra_details" value={userInfo.extra_details} onChange={handleInputChange} />
-        <br />
-
-        <button type="submit">Generate Bucket List</button>
+        <button 
+          type="submit" 
+          className="w-full p-3 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+        >
+          Generate Bucket List
+        </button>
       </form>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="mt-4 text-red-500">{error}</p>}
 
       {bucketList && (
-        <div>
-          <h2>Your Bucket List:</h2>
-          <ul>
-            {data.map((activity, index) => (
-              <li key={index}>
-                <strong>{activity.name}</strong>: {activity.description}
-              </li>
-            ))}
-          </ul>
+        <div className="mt-6">
+          <h2 className="text-2xl font-bold text-gray-700">Your Bucket List:</h2>
+          <div
+            className="mt-4 space-y-3"
+            dangerouslySetInnerHTML={{ __html: bucketList }} // Use dangerouslySetInnerHTML to inject the HTML
+          />
         </div>
       )}
     </div>
