@@ -1,19 +1,20 @@
-'use client';
-import React, { useState } from 'react';
+"use client";
+import React, { useState } from "react";
+import BucketItem from "@/components/bucket_item";
 
 export default function GenerateBucketPage() {
   const [userInfo, setUserInfo] = useState({
-    name: '',
-    interests: '',
-    location: '',
-    budget: '',
-    solo_or_social: '',
-    transportation: '',
-    travel_distance: '',
-    availability: '',
-    categories: '',
-    limitations: '',
-    extra_details: ''
+    name: "",
+    interests: "",
+    location: "",
+    budget: "",
+    solo_or_social: "",
+    transportation: "",
+    travel_distance: "",
+    availability: "",
+    categories: "",
+    limitations: "",
+    extra_details: "",
   });
 
   const [bucketList, setBucketList] = useState(null);
@@ -23,7 +24,7 @@ export default function GenerateBucketPage() {
     const { name, value } = e.target;
     setUserInfo((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -32,41 +33,47 @@ export default function GenerateBucketPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
+      const response = await fetch("/api/generate", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userInfo })
+        body: JSON.stringify({ userInfo }),
       });
 
       const data = await response.json();
 
-      console.log('API Response:', data);
+      console.log("API Response:", data);
 
       if (response.ok) {
         // Parse the bucket list text to replace newline characters and escape sequences with proper HTML
         const formattedBucketList = data.bucketList
-          .replace(/\\n/g, '<br />') // Replace newlines with <br /> for line breaks
-          .replace(/\\*\\*/g, '<strong>'); // Add proper strong tags for bold text
+          .replace(/\\n/g, "<br />") // Replace newlines with <br /> for line breaks
+          .replace(/\\*\\*/g, "<strong>"); // Add proper strong tags for bold text
         setBucketList(formattedBucketList); // Store the formatted bucket list
       } else {
-        setError(data.error || 'An error occurred while generating the bucket list.');
+        setError(
+          data.error || "An error occurred while generating the bucket list."
+        );
       }
     } catch (err) {
-      console.error('Error submitting form:', err);
-      setError('An error occurred while generating the bucket list.');
+      console.error("Error submitting form:", err);
+      setError("An error occurred while generating the bucket list.");
     }
   };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-3xl font-bold text-center text-gray-700 mb-6">Generate Your Bucket List</h1>
-      
+      <h1 className="text-3xl font-bold text-center text-gray-700 mb-6">
+        Generate Your Bucket List
+      </h1>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-lg font-medium text-gray-700">Name:</label>
+            <label className="block text-lg font-medium text-gray-700">
+              Name:
+            </label>
             <input
               type="text"
               name="name"
@@ -76,7 +83,9 @@ export default function GenerateBucketPage() {
             />
           </div>
           <div>
-            <label className="block text-lg font-medium text-gray-700">Interests:</label>
+            <label className="block text-lg font-medium text-gray-700">
+              Interests:
+            </label>
             <input
               type="text"
               name="interests"
@@ -86,7 +95,9 @@ export default function GenerateBucketPage() {
             />
           </div>
           <div>
-            <label className="block text-lg font-medium text-gray-700">Location:</label>
+            <label className="block text-lg font-medium text-gray-700">
+              Location:
+            </label>
             <input
               type="text"
               name="location"
@@ -96,7 +107,9 @@ export default function GenerateBucketPage() {
             />
           </div>
           <div>
-            <label className="block text-lg font-medium text-gray-700">Budget:</label>
+            <label className="block text-lg font-medium text-gray-700">
+              Budget:
+            </label>
             <input
               type="text"
               name="budget"
@@ -106,7 +119,9 @@ export default function GenerateBucketPage() {
             />
           </div>
           <div>
-            <label className="block text-lg font-medium text-gray-700">Solo or Social:</label>
+            <label className="block text-lg font-medium text-gray-700">
+              Solo or Social:
+            </label>
             <input
               type="text"
               name="solo_or_social"
@@ -116,7 +131,9 @@ export default function GenerateBucketPage() {
             />
           </div>
           <div>
-            <label className="block text-lg font-medium text-gray-700">Transportation:</label>
+            <label className="block text-lg font-medium text-gray-700">
+              Transportation:
+            </label>
             <input
               type="text"
               name="transportation"
@@ -126,7 +143,9 @@ export default function GenerateBucketPage() {
             />
           </div>
           <div>
-            <label className="block text-lg font-medium text-gray-700">Max Travel Distance:</label>
+            <label className="block text-lg font-medium text-gray-700">
+              Max Travel Distance:
+            </label>
             <input
               type="text"
               name="travel_distance"
@@ -136,7 +155,9 @@ export default function GenerateBucketPage() {
             />
           </div>
           <div>
-            <label className="block text-lg font-medium text-gray-700">Available Times:</label>
+            <label className="block text-lg font-medium text-gray-700">
+              Available Times:
+            </label>
             <input
               type="text"
               name="availability"
@@ -146,7 +167,9 @@ export default function GenerateBucketPage() {
             />
           </div>
           <div>
-            <label className="block text-lg font-medium text-gray-700">Preferred Categories:</label>
+            <label className="block text-lg font-medium text-gray-700">
+              Preferred Categories:
+            </label>
             <input
               type="text"
               name="categories"
@@ -156,7 +179,9 @@ export default function GenerateBucketPage() {
             />
           </div>
           <div>
-            <label className="block text-lg font-medium text-gray-700">Physical Limitations:</label>
+            <label className="block text-lg font-medium text-gray-700">
+              Physical Limitations:
+            </label>
             <input
               type="text"
               name="limitations"
@@ -166,7 +191,9 @@ export default function GenerateBucketPage() {
             />
           </div>
           <div>
-            <label className="block text-lg font-medium text-gray-700">Extra Info:</label>
+            <label className="block text-lg font-medium text-gray-700">
+              Extra Info:
+            </label>
             <input
               type="text"
               name="extra_details"
@@ -177,8 +204,8 @@ export default function GenerateBucketPage() {
           </div>
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="w-full p-3 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
         >
           Generate Bucket List
@@ -189,13 +216,25 @@ export default function GenerateBucketPage() {
 
       {bucketList && (
         <div className="mt-6">
-          <h2 className="text-2xl font-bold text-gray-700">Your Bucket List:</h2>
+          <h2 className="text-2xl font-bold text-gray-700">
+            Your Bucket List:
+          </h2>
           <div
             className="mt-4 space-y-3"
             dangerouslySetInnerHTML={{ __html: bucketList }} // Use dangerouslySetInnerHTML to inject the HTML
           />
         </div>
       )}
+      <BucketItem
+        location={"baltimore"}
+        title={"Bowling at Mustang Allys"}
+        description={
+          "you bowl your heart away for two hours at the worlds renowed mustang alleys."
+        }
+        tags={["biking", "outdoors"]}
+        rating={"9.5"}
+        difficulty={"3"}
+      />
     </div>
   );
 }

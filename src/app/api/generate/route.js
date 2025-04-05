@@ -1,24 +1,39 @@
-import { GoogleGenAI } from '@google/genai';
-import { NextResponse } from 'next/server';
+import { GoogleGenAI } from "@google/genai";
+import { NextResponse } from "next/server";
 
 export async function POST(request) {
   const { userInfo } = await request.json();
 
   // Check if the user info is valid
   if (!userInfo) {
-    return NextResponse.json({ error: "No user info provided" }, { status: 400 });
+    return NextResponse.json(
+      { error: "No user info provided" },
+      { status: 400 }
+    );
   }
 
   const {
-    name, interests, location, budget, solo_or_social, transportation,
-    travel_distance, availability, categories, limitations, extra_details
+    name,
+    interests,
+    location,
+    budget,
+    solo_or_social,
+    transportation,
+    travel_distance,
+    availability,
+    categories,
+    limitations,
+    extra_details,
   } = userInfo;
 
   try {
     // Check if the Gemini API key is available
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: "Gemini API key not found" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Gemini API key not found" },
+        { status: 500 }
+      );
     }
 
     // Initialize the GoogleGenAI client
@@ -53,12 +68,15 @@ export async function POST(request) {
 
     // Generate the bucket list using Gemini API
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',  // Use the correct model version
-      contents: prompt
+      model: "gemini-1.5-flash", // Use the correct model version
+      contents: prompt,
     });
 
     if (!response || !response.text) {
-      return NextResponse.json({ error: "No valid response from Gemini API" }, { status: 500 });
+      return NextResponse.json(
+        { error: "No valid response from Gemini API" },
+        { status: 500 }
+      );
     }
 
     // Send the generated bucket list as a response
@@ -66,7 +84,10 @@ export async function POST(request) {
 
     return NextResponse.json({ bucketList });
   } catch (error) {
-    console.error('Error generating bucket list:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error("Error generating bucket list:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
