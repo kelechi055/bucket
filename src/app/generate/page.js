@@ -1,6 +1,22 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BucketItem from "@/components/bucket_item";
+import Navbar from "@/components/navbar";
+
+var bucketFinal = [];
+function parseBucketItems(rawString) {
+  // Remove the ```json wrapper
+  const cleaned = rawString.replace(/```json\s*|\s*```/g, "");
+
+  // Parse JSON
+  try {
+    const bucketItems = JSON.parse(cleaned);
+    return bucketItems;
+  } catch (error) {
+    console.error("Failed to parse bucket items:", error);
+    return [];
+  }
+}
 
 export default function GenerateBucketPage() {
   const [userInfo, setUserInfo] = useState({
@@ -42,15 +58,20 @@ export default function GenerateBucketPage() {
       });
 
       const data = await response.json();
-
-      console.log("API Response:", data);
+      setBucketList(data);
 
       if (response.ok) {
-        // Parse the bucket list text to replace newline characters and escape sequences with proper HTML
-        const formattedBucketList = data.bucketList
-          .replace(/\\n/g, "<br />") // Replace newlines with <br /> for line breaks
-          .replace(/\\*\\*/g, "<strong>"); // Add proper strong tags for bold text
-        setBucketList(formattedBucketList); // Store the formatted bucket list
+        console.log("API Response:", data);
+        console.log(data.bucketList);
+        var bucketItems = parseBucketItems(data.bucketList);
+        console.log(Object.getOwnPropertyNames(bucketItems));
+        bucketItems.map((item, index) => {
+          console.log(`Item ${index + 1}:`);
+          Object.entries(item).forEach(([key, value]) => {
+            console.log(`  ${key}: ${value}`);
+          });
+        });
+        bucketFinal = bucketItems;
       } else {
         setError(
           data.error || "An error occurred while generating the bucket list."
@@ -64,6 +85,7 @@ export default function GenerateBucketPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <Navbar />
       <h1 className="text-3xl font-bold text-center text-gray-700 mb-6">
         Generate Your Bucket List
       </h1>
@@ -225,16 +247,17 @@ export default function GenerateBucketPage() {
           />
         </div>
       )}
-      <BucketItem
-        location={"baltimore"}
-        title={"Bowling at Mustang Allys"}
-        description={
-          "you bowl your heart away for two hours at the worlds renowed mustang alleys."
-        }
-        tags={["biking", "outdoors"]}
-        rating={"9.5"}
-        difficulty={"3"}
-      />
+
+      {bucketFinal.map((item, index) => (
+        <BucketItem
+          key={index}
+          title={item.title}
+          description={item.description}
+          tags={item.tags}
+          rating={item.rating}
+          difficulty={item.difficulty}
+        />
+      ))}
     </div>
   );
 }
