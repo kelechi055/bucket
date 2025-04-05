@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Bucket",
+  title: "bucket",
   description: "Your AI-Powered Bucket-list Generator",
 };
 
