@@ -24,7 +24,7 @@ export default function LandingPage() {
       <AppBar position="fixed" sx={{ backgroundColor: 'black' }}>
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           
-          {/* Left side (Logo or Title) */}
+          {/* Left side (Bucket Logo) */}
           <Box 
             sx={{
               display: 'flex',
