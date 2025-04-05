@@ -19,7 +19,7 @@ export default function Navbar() {
           component="a"
           href="/"
         >
-          Bucket
+          bucket
           <img
             src="/bucket-logo.png"
             alt="Bucket Logo"
