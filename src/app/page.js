@@ -6,7 +6,7 @@ import {Box, AppBar, Toolbar, Typography, Grid, Button} from "@mui/material";
 import '@fontsource/poppins';
 import '@fontsource/inter';
 
-export default function Home() {
+export default function LandingPage() {
   return (
     <Box
     sx={{
