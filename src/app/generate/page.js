@@ -78,91 +78,82 @@ export default function GenerateBucketPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
-    // Check if user is authenticated
-    if (!auth.currentUser) {
-      try {
-        // If not authenticated, sign in using Google
-        const provider = new GoogleAuthProvider();
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        console.log("Signed in as:", user.displayName); // Logging user details
-      } catch (error) {
-        console.error("Error signing in:", error);
-        setError("Could not sign in. Please try again.");
-        setLoading(false);
-        return;
-      }
-    }
-
+  
+    // Check if user is authenticated (optional - only to give user feedback)
     const user = auth.currentUser;
-
-    if (user) {
-      try {
-        const response = await fetch("/api/generate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ userInfo }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          const bucketItems = parseBucketItems(data.bucketList);
-          setParsedList(bucketItems);
-
-          // Save to Firestore
-          await addDoc(collection(db, "bucketLists"), {
-            userInfo,
-            bucketItems,
-            timestamp: new Date().toISOString(),
-            userId: user.uid, // Optionally store the user UID to link data with the user
-          });
-        } else {
-          setError(
-            data.error || "An error occurred while generating the bucket list."
-          );
-        }
-      } catch (err) {
-        console.error("Error submitting form:", err);
-        setError("An error occurred while generating the bucket list.");
-      }
-    } else {
-      console.log("User not authenticated — cannot write to Firestore");
-      setError("User not authenticated — cannot write to Firestore");
+    if (!user) {
+      console.log("User not authenticated.");
+      setError("You need to sign in first.");
+      setLoading(false);
+      return;
     }
-
+  
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userInfo }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        const bucketItems = parseBucketItems(data.bucketList);
+        setParsedList(bucketItems); // Store the generated bucket items
+      } else {
+        setError(
+          data.error || "An error occurred while generating the bucket list."
+        );
+      }
+    } catch (err) {
+      console.error("Error submitting form:", err);
+      setError("An error occurred while generating the bucket list.");
+    }
+  
     setLoading(false);
   };
+  
+  
 
   // Save button handler
   const handleSave = async () => {
     setLoading(true);
-
+  
+    // Check if user is authenticated before saving
     const user = auth.currentUser;
-    if (user && parsedList.length > 0) {
+    if (!user) {
+      console.log("User not authenticated.");
+      setError("You need to sign in first.");
+      setLoading(false);
+      return;
+    }
+  
+    if (parsedList.length > 0) {
       try {
-        // Save to Firestore
-        await addDoc(collection(db, "bucketLists"), {
-          userInfo,
-          bucketItems: parsedList,
-          timestamp: new Date().toISOString(),
-          userId: user.uid, // Optionally store the user UID to link data with the user
-        });
+        // Save to Firestore under the path /users/{userId}/savedBucketLists
+        await addDoc(
+          collection(db, `users/${user.uid}/savedBucketLists`), // Path: /users/{userId}/savedBucketLists
+          {
+            userInfo,
+            bucketItems: parsedList,
+            timestamp: new Date().toISOString(),
+          }
+        );
         console.log("Bucket List saved successfully!");
       } catch (error) {
         console.error("Error saving bucket list:", error);
         setError("An error occurred while saving the bucket list.");
       }
     } else {
-      setError("No bucket items to save or user not authenticated.");
+      setError("No bucket items to save.");
     }
-
+  
     setLoading(false);
   };
-
+  
+  
   if (loading) return <SummerLoader />;
   return (
     <div className="max-w-3xl mx-auto p-6 my-30 bg-white rounded-lg shadow-md">
