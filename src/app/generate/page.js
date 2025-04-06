@@ -107,7 +107,7 @@ export default function GenerateBucketPage() {
       }
     } catch (err) {
       console.error("Error submitting form:", err);
-      setError("An error occurred while generating the bucket list.");
+      //setError("An error occurred while generating the bucket list.");
     }
 
     setLoading(false);
