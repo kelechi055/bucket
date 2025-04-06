@@ -1,21 +1,14 @@
 "use client";
-<<<<<<< HEAD
-import React, { useState, useEffect } from "react";
 import BucketItem from "../../components/bucket_item";
 import Navbar from "../../components/navbar";
 import SummerLoader from "../../components/summerLoader";
 import { collection, addDoc } from "firebase/firestore";
-import { auth } from "/firebase"; // Make sure this imports your initialized Firebase Auth instance
+import { auth } from "/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { db } from "/firebase";
-=======
 import React, { useState, useEffect, useRef } from "react";
-import BucketItem from "../../components/bucket_item";
-import Navbar from "../../components/navbar";
 import AddBtn from "../../components/add_input.js";
-import SummerLoader from "../../components/summerLoader";
 import { element } from "prop-types";
->>>>>>> f527c898d4fc83ba232559981aded98684ed3bfb
 
 function parseBucketItems(rawString) {
   // Remove the ```json wrapper
