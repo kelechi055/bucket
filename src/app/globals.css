@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
   --foreground: #171717;
 }
 
@@ -19,11 +18,25 @@
   }
 } */
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@import "@fontsource/fredoka"; 
+
+.font-fredoka {
+  font-family: 'Fredoka', sans-serif;
 }
+
+.generate-bg {
+  background-image: url('/generate-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+body {
+  background-color: transparent;
+  color: var(--foreground);
+  font-family: 'Fredoka', sans-serif;
+}
+
 
 /* .ai-bg {
   position: absolute;
