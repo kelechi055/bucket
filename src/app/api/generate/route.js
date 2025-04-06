@@ -72,7 +72,7 @@ export async function POST(request) {
     1. Generate 4-5 personalized activity suggestions
     2. Include variety across activity types (solo vs. social, active vs. chill)
     3. Highlight local events or venues when appropriate
-    4. End the list with one unique "surprise me" idea based on the user's vibe
+    4. End the list with one unique "surprise me" idea based on the user's vibe; do not label it suprise me, format same as all other titles.
     
     Repeat: Output **only a valid JSON array** of activity objects, no markdown, no commentary only use [ {"key": "value"}] NOTHING ELSE!
     `;
