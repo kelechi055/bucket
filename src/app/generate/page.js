@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import BucketItem from "../../components/bucket_item";
 import Navbar from "../../components/navbar";
@@ -9,7 +9,7 @@ import { auth } from "/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { db } from "/firebase";
 import React, { useState, useRef } from "react";
-import '@fontsource/fredoka';
+import "@fontsource/fredoka";
 import { FaEdit } from "react-icons/fa";
 import AddBtn from "../../components/add_input";
 
@@ -58,16 +58,16 @@ export default function GenerateBucketPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-  
+
     const user = auth.currentUser;
-    
-    if (!user) {
+
+    /*if (!user) {
       console.log("User not authenticated.");
       setError("You need to sign in first.");
       setLoading(false);
       return;
-    }
-  
+    }*/
+
     try {
       // Call the API to generate the bucket list
       const response = await fetch("/api/generate", {
@@ -77,20 +77,20 @@ export default function GenerateBucketPage() {
         },
         body: JSON.stringify({ userInfo }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         const bucketItems = parseBucketItems(data.bucketList);
         setParsedList(bucketItems); // Store the generated bucket items
-  
+
         // Scroll to the generated bucket list
         setTimeout(() => {
           if (anchorRef.current) {
             anchorRef.current.scrollIntoView({ behavior: "smooth" });
           }
         }, 100);
-  
+
         // Save to Firestore after generating the bucket list
         await addDoc(
           collection(db, `users/${user.uid}/savedBucketLists`), // Path: /users/{userId}/savedBucketLists
@@ -101,16 +101,18 @@ export default function GenerateBucketPage() {
           }
         );
       } else {
-        setError(data.error || "An error occurred while generating the bucket list.");
+        console.log("Error storing on cloud");
+        /*setError(
+          data.error || "An error occurred while generating the bucket list."
+        );*/
       }
     } catch (err) {
       console.error("Error submitting form:", err);
       setError("An error occurred while generating the bucket list.");
     }
-  
+
     setLoading(false);
   };
-  
 
   const handleSave = async () => {
     setLoading(true);
@@ -136,18 +138,17 @@ export default function GenerateBucketPage() {
       setLoading(false); // Stop loading if there is no user or no items
     }
   };
-  
 
   if (loading) return <SummerLoader />;
 
   return (
     <Box
       sx={{
-        backgroundImage: 'url(/generate-bg2.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        minHeight: '100vh',
+        backgroundImage: "url(/generate-bg2.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        minHeight: "100vh",
         pt: 16,
         pb: 16,
       }}
@@ -163,16 +164,66 @@ export default function GenerateBucketPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { label: "Name", name: "name", placeholder: "John Doe", border: "border-pink-400" },
-                  { label: "Favorite Activities", name: "interests", placeholder: "Concerts, Fishing, Karaoke, ...", border: "border-yellow-400" },
-                  { label: "Location", name: "location", placeholder: "Austin, Texas", border: "border-blue-400" },
-                  { label: "Budget", name: "budget", placeholder: "$100 / $500+", border: "border-green-400" },
-                  { label: "Solo or Social", name: "solo_or_social", placeholder: "Solo, Group", border: "border-purple-400" },
-                  { label: "Transportation", name: "transportation", placeholder: "Bike, Bus, Car", border: "border-cyan-400" },
-                  { label: "Max Travel Distance", name: "travel_distance", placeholder: "10 miles, 50 miles, etc.", border: "border-orange-400" },
-                  { label: "Available Times", name: "availability", placeholder: "Weekends, Evenings...", border: "border-lime-400" },
-                  { label: "Preferred Categories", name: "categories", placeholder: "Outdoor, Food, Art...", border: "border-amber-400" },
-                  { label: "Physical Limitations", name: "limitations", placeholder: "None, Knee issues, etc.", border: "border-rose-400" },
+                  {
+                    label: "Name",
+                    name: "name",
+                    placeholder: "John Doe",
+                    border: "border-pink-400",
+                  },
+                  {
+                    label: "Favorite Activities",
+                    name: "interests",
+                    placeholder: "Concerts, Fishing, Karaoke, ...",
+                    border: "border-yellow-400",
+                  },
+                  {
+                    label: "Location",
+                    name: "location",
+                    placeholder: "Austin, Texas",
+                    border: "border-blue-400",
+                  },
+                  {
+                    label: "Budget",
+                    name: "budget",
+                    placeholder: "$100 / $500+",
+                    border: "border-green-400",
+                  },
+                  {
+                    label: "Solo or Social",
+                    name: "solo_or_social",
+                    placeholder: "Solo, Group",
+                    border: "border-purple-400",
+                  },
+                  {
+                    label: "Transportation",
+                    name: "transportation",
+                    placeholder: "Bike, Bus, Car",
+                    border: "border-cyan-400",
+                  },
+                  {
+                    label: "Max Travel Distance",
+                    name: "travel_distance",
+                    placeholder: "10 miles, 50 miles, etc.",
+                    border: "border-orange-400",
+                  },
+                  {
+                    label: "Available Times",
+                    name: "availability",
+                    placeholder: "Weekends, Evenings...",
+                    border: "border-lime-400",
+                  },
+                  {
+                    label: "Preferred Categories",
+                    name: "categories",
+                    placeholder: "Outdoor, Food, Art...",
+                    border: "border-amber-400",
+                  },
+                  {
+                    label: "Physical Limitations",
+                    name: "limitations",
+                    placeholder: "None, Knee issues, etc.",
+                    border: "border-rose-400",
+                  },
                 ].map((field) => (
                   <div key={field.name}>
                     <label className="block text-lg font-semibold text-black mb-2">
