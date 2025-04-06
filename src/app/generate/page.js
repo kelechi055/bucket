@@ -8,9 +8,10 @@ import { collection, addDoc } from "firebase/firestore";
 import { auth } from "/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { db } from "/firebase";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import '@fontsource/fredoka';
 import { FaEdit } from "react-icons/fa";
+import AddBtn from "../../components/add_input";
 
 function parseBucketItems(rawString) {
   const cleaned = rawString.replace(/```json\s*|\s*```/g, "");
@@ -85,7 +86,6 @@ export default function GenerateBucketPage() {
           const bucketItems = parseBucketItems(data.bucketList);
           setParsedList(bucketItems);
 
-          // scroll to anchor after setting list
           setTimeout(() => {
             if (anchorRef.current) {
               anchorRef.current.scrollIntoView({ behavior: "smooth" });
@@ -106,38 +106,6 @@ export default function GenerateBucketPage() {
       }
     } else {
       setError("User not authenticated — cannot write to Firestore");
-  
-    // Check if user is authenticated (optional - only to give user feedback)
-    const user = auth.currentUser;
-    if (!user) {
-      console.log("User not authenticated.");
-      setError("You need to sign in first.");
-      setLoading(false);
-      return;
-    }
-  
-    try {
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userInfo }),
-      });
-  
-      const data = await response.json();
-  
-      if (response.ok) {
-        const bucketItems = parseBucketItems(data.bucketList);
-        setParsedList(bucketItems); // Store the generated bucket items
-      } else {
-        setError(
-          data.error || "An error occurred while generating the bucket list."
-        );
-      }
-    } catch (err) {
-      console.error("Error submitting form:", err);
-      setError("An error occurred while generating the bucket list.");
     }
 
     setLoading(false);
@@ -228,141 +196,6 @@ export default function GenerateBucketPage() {
                   />
                 </div>
               </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-lg font-medium text-gray-700">
-                Name:
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={userInfo.name}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-lg font-medium text-gray-700">
-                Interests:
-              </label>
-              <input
-                type="text"
-                name="interests"
-                value={userInfo.interests}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-lg font-medium text-gray-700">
-                Location:
-              </label>
-              <input
-                type="text"
-                name="location"
-                value={userInfo.location}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-lg font-medium text-gray-700">
-                Budget:
-              </label>
-              <input
-                type="text"
-                name="budget"
-                value={userInfo.budget}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-lg font-medium text-gray-700">
-                Solo or Social:
-              </label>
-              <input
-                type="text"
-                name="solo_or_social"
-                value={userInfo.solo_or_social}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-lg font-medium text-gray-700">
-                Transportation:
-              </label>
-              <input
-                type="text"
-                name="transportation"
-                value={userInfo.transportation}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-lg font-medium text-gray-700">
-                Max Travel Distance:
-              </label>
-              <input
-                type="text"
-                name="travel_distance"
-                value={userInfo.travel_distance}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-lg font-medium text-gray-700">
-                Available Times:
-              </label>
-              <input
-                type="text"
-                name="availability"
-                value={userInfo.availability}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-lg font-medium text-gray-700">
-                Preferred Categories:
-              </label>
-              <input
-                type="text"
-                name="categories"
-                value={userInfo.categories}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-lg font-medium text-gray-700">
-                Physical Limitations:
-              </label>
-              <input
-                type="text"
-                name="limitations"
-                value={userInfo.limitations}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-lg font-medium text-gray-700">
-                Extra Info:
-              </label>
-              <input
-                type="text"
-                name="extra_details"
-                value={userInfo.extra_details}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-md"
-              />
-            </div>
-          </div>
 
               <button
                 type="submit"
@@ -370,20 +203,6 @@ export default function GenerateBucketPage() {
               >
                 Generate Bucket List
               </button>
-          <div className="flex w-full justify-between items-center px-4">
-            {/* Left spacer */}
-            <div className="w-1/3" />
-
-            {/* Centered Generate/Regenerate Button */}
-            <div className="flex justify-center w-1/3 mb-6">
-              <button
-                type="submit"
-                className="bg-gradient-to-r from-yellow-400 to-pink-500 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg hover:scale-105 hover:shadow-xl transition-transform duration-300"
-              >
-                {parsedList.length !== 0 ? "Regenerate" : "Generate"} Bucket
-                List
-              </button>
-            </div>
 
               <button
                 type="button"
@@ -392,27 +211,9 @@ export default function GenerateBucketPage() {
               >
                 Save Bucket List
               </button>
-            {/* Right-aligned Save Button */}
-            <div className="flex justify-end w-1/3">
-              <button
-                type="button"
-                className={
-                  parsedList.length !== 0
-                    ? "flex items-center gap-2 px-3 py-1 font-semibold bg-[#43B047] text-white rounded-lg hover:bg-green-600 transition duration-300"
-                    : "hidden"
-                }
-                onClick={handleSave}
-              >
-                Save
-                <FaEdit size={16} />
-              </button>
-            </div>
-          </div>
-        </form>
 
               {error && <p className="mt-4 text-red-500">{error}</p>}
             </form>
-        {error && <p className="mt-4 text-red-500">{error}</p>}
 
             <div id="bucket-anchor" ref={anchorRef}>
               {parsedList.map((item, index) => (
@@ -428,35 +229,18 @@ export default function GenerateBucketPage() {
                 />
               ))}
             </div>
+
+            {parsedList.length !== 0 && (
+              <AddBtn
+                setParsedList={setParsedList}
+                setBucketList={() => {}}
+                setLoading={setLoading}
+                setError={setError}
+                parsedList={parsedList}
+              />
+            )}
           </div>
         </div>
-        <div id="bucket-anchor">
-          {parsedList.map((item, index) => {
-            return (
-              <BucketItem
-                key={index}
-                title={item.title}
-                description={item.description}
-                tags={item.tags}
-                rating={item.rating}
-                difficulty={item.difficulty}
-                location={item.location}
-                onClick={() => removeElement(index)}
-              />
-            );
-          })}
-        </div>
-        {parsedList.length != 0 ? (
-          <AddBtn
-            setParsedList={setParsedList}
-            setBucketList={setBucketList}
-            setLoading={setLoading}
-            setError={setError}
-            parsedList={parsedList}
-          />
-        ) : (
-          ""
-        )}
       </div>
     </Box>
   );
