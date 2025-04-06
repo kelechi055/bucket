@@ -1,9 +1,13 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
 import BucketItem from "../../components/bucket_item";
 import Navbar from "../../components/navbar";
-import AddBtn from "../../components/add_input.js";
 import SummerLoader from "../../components/summerLoader";
+import { collection, addDoc } from "firebase/firestore";
+import { auth } from "/firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { db } from "/firebase";
+import React, { useState, useEffect, useRef } from "react";
+import AddBtn from "../../components/add_input.js";
 import { element } from "prop-types";
 
 function parseBucketItems(rawString) {
@@ -18,14 +22,6 @@ function parseBucketItems(rawString) {
     console.error("Failed to parse bucket items:", error);
     return [];
   }
-}
-
-function manualAdd() {
-  return (
-    <>
-      <input className="w-full p-3 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"></input>
-    </>
-  );
 }
 
 export default function GenerateBucketPage() {
@@ -79,40 +75,89 @@ export default function GenerateBucketPage() {
   };
 
   const handleSubmit = async (e) => {
-    setParsedList([]); //reset the list
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    try {
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userInfo }),
-      });
-
-      const data = await response.json();
-      setBucketList(data);
-
-      if (response.ok) {
-        var bucketItems = parseBucketItems(data.bucketList);
-        bucketItems.map((item, index) => {
-          //console.log(`Item ${index + 1}:`);
-          Object.entries(item).forEach(([key, value]) => {
-            //console.log(`  ${key}: ${value}`);
-          });
-        });
-        setParsedList(bucketItems);
-      } else {
-        setError(
-          data.error || "An error occurred while generating the bucket list."
-        );
+    // Check if user is authenticated
+    if (!auth.currentUser) {
+      try {
+        // If not authenticated, sign in using Google
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        console.log("Signed in as:", user.displayName); // Logging user details
+      } catch (error) {
+        console.error("Error signing in:", error);
+        setError("Could not sign in. Please try again.");
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      console.error("Error submitting form:", err);
-      setError("An error occurred while generating the bucket list.");
+    }
+
+    const user = auth.currentUser;
+
+    if (user) {
+      try {
+        const response = await fetch("/api/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userInfo }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          const bucketItems = parseBucketItems(data.bucketList);
+          setParsedList(bucketItems);
+
+          // Save to Firestore
+          await addDoc(collection(db, "bucketLists"), {
+            userInfo,
+            bucketItems,
+            timestamp: new Date().toISOString(),
+            userId: user.uid, // Optionally store the user UID to link data with the user
+          });
+        } else {
+          setError(
+            data.error || "An error occurred while generating the bucket list."
+          );
+        }
+      } catch (err) {
+        console.error("Error submitting form:", err);
+        setError("An error occurred while generating the bucket list.");
+      }
+    } else {
+      console.log("User not authenticated — cannot write to Firestore");
+      setError("User not authenticated — cannot write to Firestore");
+    }
+
+    setLoading(false);
+  };
+
+  // Save button handler
+  const handleSave = async () => {
+    setLoading(true);
+
+    const user = auth.currentUser;
+    if (user && parsedList.length > 0) {
+      try {
+        // Save to Firestore
+        await addDoc(collection(db, "bucketLists"), {
+          userInfo,
+          bucketItems: parsedList,
+          timestamp: new Date().toISOString(),
+          userId: user.uid, // Optionally store the user UID to link data with the user
+        });
+        console.log("Bucket List saved successfully!");
+      } catch (error) {
+        console.error("Error saving bucket list:", error);
+        setError("An error occurred while saving the bucket list.");
+      }
+    } else {
+      setError("No bucket items to save or user not authenticated.");
     }
 
     setLoading(false);
@@ -270,7 +315,17 @@ export default function GenerateBucketPage() {
         </button>
       </form>
 
+      {/* Save button */}
+      <button
+        type="button"
+        className="w-full p-3 bg-green-500 text-white rounded-md hover:bg-green-600 mt-4"
+        onClick={handleSave}
+      >
+        Save Bucket List
+      </button>
+
       {error && <p className="mt-4 text-red-500">{error}</p>}
+
       <div id="bucket-anchor">
         {parsedList.map((item, index) => {
           return (
