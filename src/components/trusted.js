@@ -1,12 +1,12 @@
-import Image from 'next/image';
+import Image from "next/image";
 
 export default function TrustedBy() {
   const avatars = [
-    'https://i.pravatar.cc/305001',
-    '/miles.jpg',
-    '/sam.jpg',
-    '/hans.jpg',
-    '/kelechi.jpg',
+    "https://i.pravatar.cc/305001",
+    "/miles.jpg",
+    "/sam.jpg",
+    "/hans.jpg",
+    "/kelechi.jpg",
   ];
 
   return (
@@ -14,7 +14,7 @@ export default function TrustedBy() {
       {/* Trusted By Text */}
       <p
         className="text-white text-lg font-medium"
-        style={{ fontFamily: 'Inter' }}
+        style={{ fontFamily: "Inter" }}
       >
         Trusted By
       </p>

@@ -287,7 +287,17 @@ export default function GenerateBucketPage() {
           );
         })}
       </div>
-      {parsedList.length != 0 ? <AddBtn /> : ""}
+      {parsedList.length != 0 ? (
+        <AddBtn
+          setParsedList={setParsedList}
+          setBucketList={setBucketList}
+          setLoading={setLoading}
+          setError={setError}
+          parsedList={parsedList}
+        />
+      ) : (
+        ""
+      )}
     </div>
   );
 }

@@ -1,7 +1,54 @@
 import { useState } from "react";
 
-export default function AddInput() {
+export default function AddInput({
+  setParsedList,
+  parsedList,
+  setBucketList,
+  setError,
+  setLoading,
+}) {
   const [entering, setEntering] = useState(false);
+  const [userInfo, setUserInfo] = useState({ description: "" });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    //console.log(JSON.stringify(userInfo));
+    try {
+      const response = await fetch("/api/manual", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ description: userInfo.description }),
+      });
+
+      const data = await response.json();
+      const bucketItems = data.tFormatted;
+
+      if (response.ok) {
+        //var bucketItems = parseBucketItems(data.bucketList);
+        bucketItems.map((item, index) => {
+          //console.log(`Item ${index + 1}:`);
+          Object.entries(item).forEach(([key, value]) => {
+            //console.log(`  ${key}: ${value}`);
+          });
+        });
+        setParsedList((prevList) => [...(prevList || []), bucketItems[0]]);
+      } else {
+        setError(
+          data.error || "An error occurred while generating the bucket list."
+        );
+      }
+    } catch (err) {
+      console.error("Error submitting form:", err);
+      setError("An error occurred while generating the bucket list.");
+    }
+
+    setLoading(false);
+  };
 
   const btnStyle = entering
     ? "w-fit px-5 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
@@ -17,11 +64,15 @@ export default function AddInput() {
           placeholder="Describe your bucket list event..."
           type="text"
           className="block w-full p-3 border rounded-md"
+          value={userInfo.description}
+          onChange={(e) =>
+            setUserInfo((prev) => ({ ...prev, description: e.target.value }))
+          }
         />
       </div>
       <div className="flex justify-center">
         <button
-          onClick={() => setEntering(!entering)}
+          onClick={entering ? handleSubmit : () => setEntering(true)}
           id="add-button"
           className={btnStyle}
         >
