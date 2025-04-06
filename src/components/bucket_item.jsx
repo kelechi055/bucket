@@ -39,7 +39,7 @@ export default function BucketItem({
   };
 
   return (
-    <div className="flex items-start gap-4 p-4 border border-yellow-300 bg-yellow-50 rounded-2xl shadow-sm max-w-3xl w-full my-1.5">
+    <div className="flex items-start gap-4 p-4 border border-yellow-300 bg-yellow-50 rounded-2xl shadow-sm max-w-4xl w-full my-1.5">
       <a
         href={location}
         target="_blank"

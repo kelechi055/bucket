@@ -9,6 +9,7 @@ import { db } from "/firebase";
 import React, { useState, useEffect, useRef } from "react";
 import AddBtn from "../../components/add_input.js";
 import { element } from "prop-types";
+import { FaEdit } from "react-icons/fa";
 
 function parseBucketItems(rawString) {
   // Remove the ```json wrapper
@@ -165,198 +166,212 @@ export default function GenerateBucketPage() {
 
   if (loading) return <SummerLoader />;
   return (
-    <div className="max-w-3xl mx-auto p-6 my-30 bg-white rounded-lg shadow-md">
-      <Navbar />
-      <h1 className="text-3xl font-bold text-center text-gray-700 mb-6">
-        Generate Your Bucket List
-      </h1>
+    <div class="bg-[url('/beach_sun_3.png')] bg-cover bg-center bg-repeat-y min-h-screen mt-10 py-40">
+      <div className="max-w-4xl mx-auto px-9 py-17 mb-30 bg-white/60 rounded-lg shadow-md">
+        <Navbar />
+        <h1 className="text-3xl font-bold text-center text-gray-700 mb-6">
+          Generate Your Bucket List
+        </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Name:
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={userInfo.name}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-md"
-            />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Name:
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={userInfo.name}
+                onChange={handleInputChange}
+                className="w-full p-3 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Interests:
+              </label>
+              <input
+                type="text"
+                name="interests"
+                value={userInfo.interests}
+                onChange={handleInputChange}
+                className="w-full p-3 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Location:
+              </label>
+              <input
+                type="text"
+                name="location"
+                value={userInfo.location}
+                onChange={handleInputChange}
+                className="w-full p-3 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Budget:
+              </label>
+              <input
+                type="text"
+                name="budget"
+                value={userInfo.budget}
+                onChange={handleInputChange}
+                className="w-full p-3 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Solo or Social:
+              </label>
+              <input
+                type="text"
+                name="solo_or_social"
+                value={userInfo.solo_or_social}
+                onChange={handleInputChange}
+                className="w-full p-3 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Transportation:
+              </label>
+              <input
+                type="text"
+                name="transportation"
+                value={userInfo.transportation}
+                onChange={handleInputChange}
+                className="w-full p-3 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Max Travel Distance:
+              </label>
+              <input
+                type="text"
+                name="travel_distance"
+                value={userInfo.travel_distance}
+                onChange={handleInputChange}
+                className="w-full p-3 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Available Times:
+              </label>
+              <input
+                type="text"
+                name="availability"
+                value={userInfo.availability}
+                onChange={handleInputChange}
+                className="w-full p-3 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Preferred Categories:
+              </label>
+              <input
+                type="text"
+                name="categories"
+                value={userInfo.categories}
+                onChange={handleInputChange}
+                className="w-full p-3 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Physical Limitations:
+              </label>
+              <input
+                type="text"
+                name="limitations"
+                value={userInfo.limitations}
+                onChange={handleInputChange}
+                className="w-full p-3 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Extra Info:
+              </label>
+              <input
+                type="text"
+                name="extra_details"
+                value={userInfo.extra_details}
+                onChange={handleInputChange}
+                className="w-full p-3 border rounded-md"
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Interests:
-            </label>
-            <input
-              type="text"
-              name="interests"
-              value={userInfo.interests}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-md"
-            />
+
+          <div className="flex w-full justify-between items-center px-4">
+            {/* Left spacer */}
+            <div className="w-1/3" />
+
+            {/* Centered Generate/Regenerate Button */}
+            <div className="flex justify-center w-1/3 mb-6">
+              <button
+                type="submit"
+                className="bg-gradient-to-r from-yellow-400 to-pink-500 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg hover:scale-105 hover:shadow-xl transition-transform duration-300"
+              >
+                {parsedList.length !== 0 ? "Regenerate" : "Generate"} Bucket
+                List
+              </button>
+            </div>
+
+            {/* Right-aligned Save Button */}
+            <div className="flex justify-end w-1/3">
+              <button
+                type="button"
+                className={
+                  parsedList.length !== 0
+                    ? "flex items-center gap-2 px-3 py-1 font-semibold bg-[#43B047] text-white rounded-lg hover:bg-green-600 transition duration-300"
+                    : "hidden"
+                }
+                onClick={handleSave}
+              >
+                Save
+                <FaEdit size={16} />
+              </button>
+            </div>
           </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Location:
-            </label>
-            <input
-              type="text"
-              name="location"
-              value={userInfo.location}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Budget:
-            </label>
-            <input
-              type="text"
-              name="budget"
-              value={userInfo.budget}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Solo or Social:
-            </label>
-            <input
-              type="text"
-              name="solo_or_social"
-              value={userInfo.solo_or_social}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Transportation:
-            </label>
-            <input
-              type="text"
-              name="transportation"
-              value={userInfo.transportation}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Max Travel Distance:
-            </label>
-            <input
-              type="text"
-              name="travel_distance"
-              value={userInfo.travel_distance}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Available Times:
-            </label>
-            <input
-              type="text"
-              name="availability"
-              value={userInfo.availability}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Preferred Categories:
-            </label>
-            <input
-              type="text"
-              name="categories"
-              value={userInfo.categories}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Physical Limitations:
-            </label>
-            <input
-              type="text"
-              name="limitations"
-              value={userInfo.limitations}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Extra Info:
-            </label>
-            <input
-              type="text"
-              name="extra_details"
-              value={userInfo.extra_details}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-md"
-            />
-          </div>
+        </form>
+
+        {error && <p className="mt-4 text-red-500">{error}</p>}
+
+        <div id="bucket-anchor">
+          {parsedList.map((item, index) => {
+            return (
+              <BucketItem
+                key={index}
+                title={item.title}
+                description={item.description}
+                tags={item.tags}
+                rating={item.rating}
+                difficulty={item.difficulty}
+                location={item.location}
+                onClick={() => removeElement(index)}
+              />
+            );
+          })}
         </div>
-
-        <button
-          type="submit"
-          className="w-full p-3 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
-        >
-          Generate Bucket List
-        </button>
-      </form>
-
-      {/* Save button */}
-      <button
-        type="button"
-        className={
-          parsedList.length != 0
-            ? "w-full p-3 bg-green-500 text-white rounded-md hover:bg-green-600 mt-4"
-            : "hidden"
-        }
-        onClick={handleSave}
-      >
-        Save Bucket List
-      </button>
-
-      {error && <p className="mt-4 text-red-500">{error}</p>}
-
-      <div id="bucket-anchor">
-        {parsedList.map((item, index) => {
-          return (
-            <BucketItem
-              key={index}
-              title={item.title}
-              description={item.description}
-              tags={item.tags}
-              rating={item.rating}
-              difficulty={item.difficulty}
-              location={item.location}
-              onClick={() => removeElement(index)}
-            />
-          );
-        })}
+        {parsedList.length != 0 ? (
+          <AddBtn
+            setParsedList={setParsedList}
+            setBucketList={setBucketList}
+            setLoading={setLoading}
+            setError={setError}
+            parsedList={parsedList}
+          />
+        ) : (
+          ""
+        )}
       </div>
-      {parsedList.length != 0 ? (
-        <AddBtn
-          setParsedList={setParsedList}
-          setBucketList={setBucketList}
-          setLoading={setLoading}
-          setError={setError}
-          parsedList={parsedList}
-        />
-      ) : (
-        ""
-      )}
     </div>
   );
 }
