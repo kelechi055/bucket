@@ -4,7 +4,9 @@ import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
 import { AppBar, Toolbar, Box, Button } from '@mui/material';
 
 export default function Navbar() {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, isLoaded } = useUser();
+
+  if (!isLoaded) return null;
 
   return (
     <AppBar position="fixed" sx={{ backgroundColor: 'black' }}>
