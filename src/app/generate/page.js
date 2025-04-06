@@ -318,7 +318,11 @@ export default function GenerateBucketPage() {
       {/* Save button */}
       <button
         type="button"
-        className="w-full p-3 bg-green-500 text-white rounded-md hover:bg-green-600 mt-4"
+        className={
+          parsedList.length != 0
+            ? "w-full p-3 bg-green-500 text-white rounded-md hover:bg-green-600 mt-4"
+            : "hidden"
+        }
         onClick={handleSave}
       >
         Save Bucket List
