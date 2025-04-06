@@ -136,7 +136,7 @@ export default function GenerateBucketPage() {
   return (
     <Box
       sx={{
-        backgroundImage: 'url(/generate-bg.png)',
+        backgroundImage: 'url(/generate-bg2.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
