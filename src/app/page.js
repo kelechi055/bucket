@@ -30,20 +30,23 @@ export default function LandingPage() {
         <Navbar/>
         {/* Start of Hero Section */}
         <div className="flex flex-col items-center justify-center mb-10 mt-55 text-center">
-          <Typography
-            sx={{
-              fontFamily: 'Poppins',
-              fontWeight: 600,
-              fontSize: '70px',
-              lineHeight: '70px',
-              color: 'white',
-              textAlign: 'center',
-            }}
-          >
-            Plan Your Dream <AnimatedWord />
-            <br />
-            One List At A Time.
+        <Typography
+          component="div"
+          sx={{
+            fontFamily: 'Poppins',
+            fontWeight: 600,
+            fontSize: '70px',
+            lineHeight: '70px',
+            color: 'white',
+            textAlign: 'center',
+          }}
+        >
+          Plan Your Dream <AnimatedWord />
+          <br />
+          One List At A Time.
         </Typography>
+
+
         </div>
 
         <div className="flex flex-col items-center justify-center text-center">
@@ -219,6 +222,7 @@ export default function LandingPage() {
         <div className="flex flex-col items-center justify-center mt-45 mb-5 text-center">
           {/* Dont take our word for it */}
           <Typography
+            component="div"
             sx={{
               fontFamily: 'Poppins',
               fontWeight: 600,
