@@ -49,6 +49,7 @@ export async function POST(request) {
     
     Each activity object should have the following keys:
     - title: string – a short, engaging name for the activity
+    - location: string - a link to the google maps location of the bucketlist item
     - description: string – a concise and helpful description of the activity
     - rating: number – a float between 1.0 and 10.0 (e.g., 7.5). This should reflect how **well the activity matches the user's preferences** and how **unique or creative** the activity is. 10 = highly personalized and unique, 1 = generic and loosely related.
     - difficulty: string – one of the following: "easy", "medium", "hard", or "epic". Estimate the overall effort required to complete the activity (physical, social, or planning-related).
@@ -68,7 +69,7 @@ export async function POST(request) {
     - Extra Info: ${extra_details}
     
     Use this information to:
-    1. Generate 5–7 personalized activity suggestions
+    1. Generate 4-5 personalized activity suggestions
     2. Include variety across activity types (solo vs. social, active vs. chill)
     3. Highlight local events or venues when appropriate
     4. End the list with one unique "surprise me" idea based on the user's vibe

@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import BucketItem from "@/components/bucket_item";
 import Navbar from "@/components/navbar";
+import SummerLoader from "@/components/summerLoader";
+import { element } from "prop-types";
 
-var bucketFinal = [];
 function parseBucketItems(rawString) {
   // Remove the ```json wrapper
   const cleaned = rawString.replace(/```json\s*|\s*```/g, "");
@@ -34,7 +35,9 @@ export default function GenerateBucketPage() {
   });
 
   const [bucketList, setBucketList] = useState(null);
+  const [parsedList, setParsedList] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,9 +47,27 @@ export default function GenerateBucketPage() {
     }));
   };
 
+  useEffect(() => {
+    const anchor = document.getElementById("bucket-anchor");
+    if (anchor) {
+      anchor.scrollIntoView({
+        behavior: "smooth",
+        block: "start", // aligns the top of the element with the top of the scroll area
+      });
+    }
+  }, [loading]);
+
+  const removeElement = (indexToRemove) => {
+    setParsedList((prevList) =>
+      prevList.filter((_, index) => index !== indexToRemove)
+    );
+  };
+
   const handleSubmit = async (e) => {
+    setParsedList([]); //reset the list
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     try {
       const response = await fetch("/api/generate", {
@@ -61,17 +82,14 @@ export default function GenerateBucketPage() {
       setBucketList(data);
 
       if (response.ok) {
-        console.log("API Response:", data);
-        console.log(data.bucketList);
         var bucketItems = parseBucketItems(data.bucketList);
-        console.log(Object.getOwnPropertyNames(bucketItems));
         bucketItems.map((item, index) => {
-          console.log(`Item ${index + 1}:`);
+          //console.log(`Item ${index + 1}:`);
           Object.entries(item).forEach(([key, value]) => {
-            console.log(`  ${key}: ${value}`);
+            //console.log(`  ${key}: ${value}`);
           });
         });
-        bucketFinal = bucketItems;
+        setParsedList(bucketItems);
       } else {
         setError(
           data.error || "An error occurred while generating the bucket list."
@@ -81,8 +99,11 @@ export default function GenerateBucketPage() {
       console.error("Error submitting form:", err);
       setError("An error occurred while generating the bucket list.");
     }
+
+    setLoading(false);
   };
 
+  if (loading) return <SummerLoader />;
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <Navbar />
@@ -235,29 +256,22 @@ export default function GenerateBucketPage() {
       </form>
 
       {error && <p className="mt-4 text-red-500">{error}</p>}
-
-      {bucketList && (
-        <div className="mt-6">
-          <h2 className="text-2xl font-bold text-gray-700">
-            Your Bucket List:
-          </h2>
-          <div
-            className="mt-4 space-y-3"
-            dangerouslySetInnerHTML={{ __html: bucketList }} // Use dangerouslySetInnerHTML to inject the HTML
-          />
-        </div>
-      )}
-
-      {bucketFinal.map((item, index) => (
-        <BucketItem
-          key={index}
-          title={item.title}
-          description={item.description}
-          tags={item.tags}
-          rating={item.rating}
-          difficulty={item.difficulty}
-        />
-      ))}
+      <div id="bucket-anchor">
+        {parsedList.map((item, index) => {
+          return (
+            <BucketItem
+              key={index}
+              title={item.title}
+              description={item.description}
+              tags={item.tags}
+              rating={item.rating}
+              difficulty={item.difficulty}
+              location={item.location}
+              onClick={() => removeElement(index)}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
