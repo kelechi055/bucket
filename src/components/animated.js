@@ -62,10 +62,11 @@ export default function AnimatedWord() {
             transition={{ duration: 0.4 }}
             className="rainbow-text"
             style={{
-                top: 0,
-                bottom: 0,
-                display: 'flex',
-                alignItems: 'center',                
+              top: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'center',  
+              whiteSpace: 'nowrap',
             }}
           >
             {words[index]}
