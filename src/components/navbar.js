@@ -36,6 +36,7 @@ export default function Navbar() {
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
           {[
             { label: 'Home', href: '/' },
+            { label: 'About', href: '/about' },
             { label: 'Generate', href: '/generate' },
             { label: 'GitHub', href: 'https://github.com/kelechi055/bucket' },
           ].map((item) => (
@@ -44,84 +45,26 @@ export default function Navbar() {
               color="inherit"
               href={item.href}
               sx={{
-                position: 'relative',
-                color: 'white',
                 textTransform: 'none',
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  width: '100%',
-                  height: '2px',
-                  bottom: 4,
-                  left: 0,
+                '&:hover': {
                   backgroundColor: 'white',
-                  transform: 'scaleX(0)',
-                  transformOrigin: 'left',
-                  transition: 'transform 0.3s ease',
-                },
-                '&:hover::after': {
-                  transform: 'scaleX(1)',
+                  color: 'black',
                 },
               }}
             >
               {item.label}
             </Button>
           ))}
+          {/* Display SignIn/SignUp buttons if not signed in */}
           {!isSignedIn ? (
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <>
               <SignInButton mode="modal">
-                <Button
-                sx={{
-                  position: 'relative',
-                  color: 'white',
-                  textTransform: 'none',
-                  '&::after': {
-                    content: '""',
-                    position: 'absolute',
-                    width: '100%',
-                    height: '2px',
-                    bottom: 4,
-                    left: 0,
-                    backgroundColor: 'white',
-                    transform: 'scaleX(0)',
-                    transformOrigin: 'left',
-                    transition: 'transform 0.3s ease',
-                  },
-                  '&:hover::after': {
-                    transform: 'scaleX(1)',
-                  },
-                }}
-                >
-                  Sign In
-                </Button>
+                <button className="border px-4 py-2 rounded border-white">Sign In</button>
               </SignInButton>
               <SignUpButton mode="modal">
-                <Button
-                sx={{
-                  position: 'relative',
-                  color: 'white',
-                  textTransform: 'none',
-                  '&::after': {
-                    content: '""',
-                    position: 'absolute',
-                    width: '100%',
-                    height: '2px',
-                    bottom: 4,
-                    left: 0,
-                    backgroundColor: 'white',
-                    transform: 'scaleX(0)',
-                    transformOrigin: 'left',
-                    transition: 'transform 0.3s ease',
-                  },
-                  '&:hover::after': {
-                    transform: 'scaleX(1)',
-                  },
-                }}
-                >
-                  Sign Up
-                </Button>
+                <button className="bg-white text-black px-4 py-2 rounded">Sign Up</button>
               </SignUpButton>
-            </Box>
+            </>
           ) : (
             <UserButton afterSignOutUrl="/" />
           )}
