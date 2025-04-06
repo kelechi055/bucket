@@ -29,7 +29,7 @@ export default function LandingPage() {
       >
         <Navbar/>
         {/* Start of Hero Section */}
-        <div className="flex flex-col items-center justify-center mb-10 mt-40 text-center">
+        <div className="flex flex-col items-center justify-center mb-10 mt-55 text-center">
           <Typography
             sx={{
               fontFamily: 'Poppins',
