@@ -113,7 +113,7 @@ export default function LandingPage() {
       <Box
         sx={{
           backgroundColor: "white",
-          padding: "2rem",
+          padding: "1rem",
         }}
       >
         {/* Start of Hero Section 2*/}
@@ -132,14 +132,14 @@ export default function LandingPage() {
           </Typography>
         </div>
 
-        <div className="flex flex-row items-center justify-center text-center mb-10 space-x-12 space-x-60">
+        <div className="flex flex-row items-center justify-center text-center mb-10 space-x-12 space-x-50">
           {/* Step 1 */}
           <div className="flex flex-col items-center">
             <img
               src="/brain.png"
               alt="Brain Logo"
-              width={200}
-              height={200}
+              width={350}
+              height={250}
               style={{ marginBottom: "8px" }}
             />
             <Typography
@@ -196,13 +196,57 @@ export default function LandingPage() {
               AI generates <br /> your dream list
             </Typography>
           </div>
+          
           {/* Step 3 */}
+          <div className="flex flex-col items-center">
+            <div className="relative w-[200px] h-[250px] mb-2">
+              <img
+                src="/location.png"
+                alt="Location Icon"
+                className="w-full h-full object-contain animate-neon-sparkle"
+              />
+            </div>
+
+            <style jsx>{`
+              @keyframes neon-sparkle {
+                0%,
+                100% {
+                  filter: drop-shadow(0 0 5px rgb(255, 255, 255))
+                          drop-shadow(0 0 10px rgb(255, 255, 255));
+                  transform: scale(1);
+                }
+                50% {
+                  filter: drop-shadow(0 0 15px rgb(255, 255, 255))
+                          drop-shadow(0 0 30px rgb(255, 255, 255));
+                  transform: scale(1.05);
+                }
+              }
+
+              .animate-neon-sparkle {
+                animation: neon-sparkle 2s ease-in-out infinite;
+              }
+            `}</style>
+
+            <Typography
+              sx={{
+                fontFamily: "Inter",
+                color: "black",
+                fontSize: "20px",
+                textAlign: "center",
+              }}
+            >
+              Choose where <br /> your journey begins
+            </Typography>
+          </div>
+
+          
+          {/* Step 4 */}
           <div className="flex flex-col items-center">
             <img
               src="/scroll-logo.png"
               alt="scroll Logo"
-              width={200}
-              height={200}
+              width={350}
+              height={350}
               style={{ marginBottom: "8px" }}
             />
             <Typography
@@ -213,7 +257,7 @@ export default function LandingPage() {
                 textAlign: "center",
               }}
             >
-              Start livin it.
+              Start exploring!
             </Typography>
           </div>
         </div>
@@ -235,84 +279,82 @@ export default function LandingPage() {
           </Typography>
         </div>
 
-        <div className="flex flex-col items-center justify-center mt-0 mb-5 text-center">
-          {/* What users think */}
+      <div className="flex flex-col items-center justify-center mt-0 mb-20 text-center">
+        <Typography
+          sx={{
+            fontFamily: "Poppins",
+            fontWeight: 600,
+            fontSize: "70px",
+            lineHeight: "70px",
+            color: "black",
+          }}
+        >
+          Here's what one of our users think.
+        </Typography>
+      </div>
+
+      {/* Centered Testimonial Section */}
+      <div className="flex justify-center">
+        <div className="w-full md:w-2/3 text-left">
           <Typography
+            component="div"
             sx={{
-              fontFamily: "Poppins",
-              fontWeight: 600,
-              fontSize: "70px",
-              lineHeight: "70px",
               color: "black",
+              fontFamily: "Inter",
+              fontStyle: "italic",
+              fontSize: "30px",
+              lineHeight: "1.6",
             }}
           >
-            Here's what one of our users think.
-          </Typography>
-        </div>
-
-        {/* IPAD + TESTIMONIAL */}
-        <div className="flex flex-row items-center">
-          {/* LEFT ITEM */}
-          <div className="flex flex-row items-left mt-10">
-            <img src="/ipad.png" width={550} height={550}></img>
-          </div>
-
-          {/* MIDDLE ITEM / LINE */}
-          <div className="w-px h-150 bg-gray-300 mx-8 mt-10 ml-50"></div>
-
-          {/* Right Side */}
-          <div className="w-1/2 text-left">
-            <Typography
-              component="div"
-              sx={{
-                color: "black",
-                fontFamily: "Inter",
-                fontStyle: "italic",
-                fontSize: "30px",
-                lineHeight: "1.6",
+            <span style={{ color: "#FF00DC", fontWeight: "bold" }}>"</span>
+            This past summer was my first time interning at Meta in the Bay
+            Area, and outside of work I had no idea what to do.{" "}
+            <span
+              style={{
+                fontFamily: "Inria Serif",
+                fontWeight: "bold",
+                fontStyle: "normal",
               }}
             >
-              <span style={{ color: "#FF00DC", fontWeight: "bold" }}>"</span>
-              This past summer was my first time interning at Meta in the Bay
-              Area, and outside of work I had no idea what to do.{" "}
-              <span
-                style={{
-                  fontFamily: "Inria Serif",
-                  fontWeight: "bold",
-                  fontStyle: "normal",
-                }}
-              >
-                Bucket
-              </span>{" "}
-              gave me a curated list of things to try, from local food spots to
-              scenic hikes, and made exploring way less overwhelming.
-              <span style={{ color: "#FF00DC", fontWeight: "bold" }}>"</span>
-              <br />
-              <br />
-              {/* Testimonial block */}
-              <div className="flex items-center gap-4">
-                <div className="relative w-[80px] h-[80px]">
-                  <img
-                    src="/testimony.png"
-                    alt="Maya"
-                    className="w-full h-full rounded-xl object-cover"
-                  />
-                  <img
-                    src="/meta.png"
-                    alt="Meta Logo"
-                    className="absolute bottom-0 right-0 w-5 h-5"
-                  />
-                </div>
-                <div className="flex flex-col justify-center">
-                  <span className="text-black font-semibold not-italic">
-                    Maya, 21
-                  </span>
-                  <span className="text-gray-500 text-sm not-italic">
-                    Prev SWE Intern @ Meta
-                  </span>
-                </div>
+              Bucket
+            </span>{" "}
+            gave me a curated list of things to try, from local food spots to
+            scenic hikes, and made exploring way less overwhelming.
+            <span style={{ color: "#FF00DC", fontWeight: "bold" }}>"</span>
+            <br />
+            <br />
+            {/* Testimonial block */}
+            <div className="flex items-center gap-4">
+              <div className="relative w-[80px] h-[80px]">
+                <img
+                  src="/testimony.png"
+                  alt="Maya"
+                  className="w-full h-full rounded-xl object-cover"
+                />
+                <img
+                  src="/meta.png"
+                  alt="Meta Logo"
+                  className="absolute bottom-0 right-0 w-5 h-5"
+                />
               </div>
-            </Typography>
+              <div className="flex flex-col justify-center">
+                <span className="text-black font-semibold not-italic">
+                  Maya, 21
+                </span>
+                <span className="text-gray-500 text-sm not-italic">
+                  Prev SWE Intern @ Meta
+                </span>
+              </div>
+            </div>
+          </Typography>
+        </div>
+      </div>
+
+        {/* IPAD + TESTIMONIAL */}
+        <div className="flex flex-col items-center">
+          {/* LEFT ITEM */}
+          <div className="flex flex-row items-left mt-10 mb-10">
+            <img src="/ipad.png" width={750} height={550}></img>
           </div>
         </div>
       </Box>
@@ -495,7 +537,7 @@ export default function LandingPage() {
                 DEVPOST
               </footer>
             </div>
-            <p class="text-20mx text-gray-400 mt-2 text-center italic">
+            <p className="text-20mx text-gray-400 mt-2 text-center italic">
               Imagined at HackHounds 2025 Hackathon
             </p>
           </div>
