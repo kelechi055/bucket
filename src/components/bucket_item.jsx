@@ -1,4 +1,5 @@
-import { FaMapMarkerAlt, FaEdit, FaTrashAlt } from "react-icons/fa";
+import { FaMapMarkerAlt, FaTrashAlt } from "react-icons/fa";
+import { useEffect, useState } from "react";
 
 export default function BucketItem({
   title,
@@ -9,7 +10,6 @@ export default function BucketItem({
   location,
   onClick,
 }) {
-  // Color palette inspired by sunrise/sunset
   const sunsetColors = [
     "bg-pink-400",
     "bg-pink-500",
@@ -22,7 +22,14 @@ export default function BucketItem({
     "bg-fuchsia-500",
   ];
 
-  // Deterministic string-to-color hashing
+  const [lnBr, setLnBr] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 414) {
+      setLnBr(<div className="line-br w-full leading-[1px]"></div>);
+    }
+  }, []);
+
   const hashStringToIndex = (str, max) => {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -33,7 +40,6 @@ export default function BucketItem({
 
   return (
     <div className="flex items-start gap-4 p-4 border border-yellow-300 bg-yellow-50 rounded-2xl shadow-sm max-w-3xl w-full my-1.5">
-      {/* Location icon */}
       <a
         href={location}
         target="_blank"
@@ -46,11 +52,9 @@ export default function BucketItem({
         />
       </a>
 
-      {/* Main content */}
       <div className="flex-1">
         <h2 className="font-bold text-lg text-black">{title}</h2>
 
-        {/* Metadata row */}
         <div className="flex flex-wrap items-center gap-2 mt-1 mb-2 text-sm">
           <span className="font-semibold text-black">Rating:</span>
           <span className="text-black">{rating}</span>
@@ -58,7 +62,8 @@ export default function BucketItem({
           <span className="font-semibold text-black ml-4">Difficulty:</span>
           <span className="text-black">{difficulty}</span>
 
-          {/* Tags with hashed color */}
+          {lnBr}
+
           {tags?.map((tag, idx) => {
             const colorIndex = hashStringToIndex(tag, sunsetColors.length);
             const color = sunsetColors[colorIndex];
@@ -73,11 +78,9 @@ export default function BucketItem({
           })}
         </div>
 
-        {/* Description */}
         <p className="text-gray-800 text-sm">{description}</p>
       </div>
 
-      {/* Subtle icon buttons */}
       <div className="flex flex-row items-end gap-3 mt-1">
         <button
           onClick={onClick}

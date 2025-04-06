@@ -54,6 +54,10 @@ export default function AddInput({
     ? "w-fit px-5 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
     : "w-fit px-5 py-3 bg-yellow-500 text-white rounded-md hover:bg-yellow-600";
 
+  const rmStyle = entering
+    ? "w-fit px-5 py-3 bg-red-500 text-white rounded-md hover:bg-red-600"
+    : "hidden";
+
   return (
     <div className="flex justify-center flex-col gap-5 mt-6">
       <div className={entering ? "block" : "hidden"}>
@@ -70,9 +74,20 @@ export default function AddInput({
           }
         />
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center gap-3">
         <button
-          onClick={entering ? handleSubmit : () => setEntering(true)}
+          onClick={(e) => {
+            e.preventDefault(); // prevent form submission behavior
+            // cancel just exits entering mode, nothing else happens
+            setEntering(false);
+          }}
+          id="rm-button"
+          className={rmStyle}
+        >
+          {entering ? "cancel" : ""}
+        </button>
+        <button
+          onClick={entering ? handleSubmit : () => setEntering(!entering)}
           id="add-button"
           className={btnStyle}
         >
