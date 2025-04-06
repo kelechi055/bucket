@@ -89,6 +89,7 @@ export default function LandingPage() {
                     color: 'black',
                     boxShadow: '0 0 20px 5px rgba(255, 255, 255, 0.6)',
                     animation: 'pulseGlow 1.5s ease-in-out infinite',
+                    scale: '1.05'
                   },
                   '@keyframes pulseGlow': {
                     '0%': {
@@ -436,6 +437,7 @@ export default function LandingPage() {
                     color: 'black',
                     boxShadow: '0 0 20px 5px rgba(255, 255, 255, 0.6)',
                     animation: 'pulseGlow 1.5s ease-in-out infinite',
+                    scale: '1.05'
                   },
                   '@keyframes pulseGlow': {
                     '0%': {
