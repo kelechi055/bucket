@@ -1,9 +1,9 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import BucketItem from "@/components/bucket_item";
-import Navbar from "@/components/navbar";
-import AddBtn from "@/components/add_input.js";
-import SummerLoader from "@/components/summerLoader";
+import React, { useState, useEffect, useRef } from "react";
+import BucketItem from "../../components/bucket_item";
+import Navbar from "../../components/navbar";
+import AddBtn from "../../components/add_input.js";
+import SummerLoader from "../../components/summerLoader";
 import { element } from "prop-types";
 
 function parseBucketItems(rawString) {
@@ -47,6 +47,7 @@ export default function GenerateBucketPage() {
   const [parsedList, setParsedList] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const isFirstRender = useRef(true);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -57,11 +58,16 @@ export default function GenerateBucketPage() {
   };
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return; // skip running on first render
+    }
+
     const anchor = document.getElementById("bucket-anchor");
     if (anchor) {
       anchor.scrollIntoView({
         behavior: "smooth",
-        block: "start", // aligns the top of the element with the top of the scroll area
+        block: "start",
       });
     }
   }, [loading]);
@@ -114,7 +120,7 @@ export default function GenerateBucketPage() {
 
   if (loading) return <SummerLoader />;
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-3xl mx-auto p-6 my-30 bg-white rounded-lg shadow-md">
       <Navbar />
       <h1 className="text-3xl font-bold text-center text-gray-700 mb-6">
         Generate Your Bucket List
