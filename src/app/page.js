@@ -9,6 +9,8 @@ import "@fontsource/inria-serif";
 import TrustedBy from '@/components/trusted.js';
 import TrustedBy2 from '@/components/trusted2.js';
 import Navbar from '@/components/navbar.js';
+import AnimatedWord from '@/components/animated.js';
+
 
 export default function LandingPage() {
   return (
@@ -35,11 +37,13 @@ export default function LandingPage() {
               fontSize: '70px',
               lineHeight: '70px',
               color: 'white',
+              textAlign: 'center',
             }}
           >
-            Create Your Dream Life, <br />
+            Plan Your Dream <AnimatedWord />
+            <br />
             One List At A Time.
-          </Typography>
+        </Typography>
         </div>
 
         <div className="flex flex-col items-center justify-center text-center">
@@ -114,7 +118,7 @@ export default function LandingPage() {
       >
 
         {/* Start of Hero Section 2*/}
-        <div className="flex flex-col items-center justify-center mt-15 mb-5 text-center">
+        <div className="flex flex-col items-center justify-center mt-15 mb-30 text-center">
           {/* How It Works */}
           <Typography
             sx={{
@@ -135,8 +139,8 @@ export default function LandingPage() {
             <img 
               src="/brain.png"
               alt="Brain Logo" 
-              width={150}
-              height={150}
+              width={200}
+              height={200}
               style={{ marginBottom: '8px' }}
             />
             <Typography
@@ -154,13 +158,31 @@ export default function LandingPage() {
 
           {/* Step 2 */}
           <div className="flex flex-col items-center">
-            <img 
-              src="/sparkles.png"
-              alt="Sparkles Logo" 
-              width={150}
-              height={150}
-              style={{ marginBottom: '8px' }}
-            />
+          <div className="relative w-[350px] h-[250px] mb-2">
+          <img
+            src="/sparkles.png"
+            alt="Sparkles Logo"
+            className="w-full h-full object-contain animate-neon-sparkle"
+          />
+        </div>
+
+        <style jsx>{`
+          @keyframes neon-sparkle {
+            0%, 100% {
+              filter: drop-shadow(0 0 5pxrgb(255, 255, 255)) drop-shadow(0 0 10pxrgb(255, 255, 255));
+              transform: scale(1);
+            }
+            50% {
+              filter: drop-shadow(0 0 15pxrgb(255, 255, 255)) drop-shadow(0 0 30pxrgb(255, 255, 255));
+              transform: scale(1.05);
+            }
+          }
+
+          .animate-neon-sparkle {
+            animation: neon-sparkle 2s ease-in-out infinite;
+          }
+        `}</style>
+
             <Typography
               sx={{
                 fontFamily: 'Inter',
@@ -177,8 +199,8 @@ export default function LandingPage() {
             <img 
               src="/scroll-logo.png"
               alt="scroll Logo" 
-              width={150}
-              height={150}
+              width={200}
+              height={200}
               style={{ marginBottom: '8px' }}
             />
             <Typography
@@ -189,9 +211,43 @@ export default function LandingPage() {
                 textAlign: 'center',
               }}
             >
-              Start living it.
+              Start livin it.
             </Typography> 
           </div>
+        </div>
+
+        <div className="flex flex-col items-center justify-center mt-45 mb-5 text-center">
+          {/* Dont take our word for it */}
+          <Typography
+            sx={{
+              fontFamily: 'Poppins',
+              fontWeight: 600,
+              fontSize: '70px',
+              lineHeight: '70px',
+              color: 'black',
+            }}
+          >
+            Dont just take <span style={{color: '#FF00DC'}}
+            >
+              our 
+              </span
+              > word for it.
+          </Typography>
+        </div>
+
+        <div className="flex flex-col items-center justify-center mt-0 mb-5 text-center">
+          {/* What users think */}
+          <Typography
+            sx={{
+              fontFamily: 'Poppins',
+              fontWeight: 600,
+              fontSize: '70px',
+              lineHeight: '70px',
+              color: 'black',
+            }}
+          >
+            Here's what one of our users think.
+          </Typography>
         </div>
 
         {/* IPAD + TESTIMONIAL */}
@@ -210,34 +266,54 @@ export default function LandingPage() {
           <div className="w-px h-150 bg-gray-300 mx-8 mt-10 ml-50"></div>
         
           {/* Right Side */}
-          <div className="w-1/2 text-left ">
-            <Typography
+          <div className="w-1/2 text-left">
+          <Typography
+            component="div"
             sx={{
               color: 'black',
               fontFamily: 'Inter',
               fontStyle: 'italic',
               fontSize: '30px',
+              lineHeight: '1.6',
             }}
           >
-            "I never realized I wanted to go skydiving <br/>
-            until I tried{' '}
-            <span
-              style={{
-                fontFamily: 'Inria Serif',
-                fontWeight: 'bold',
-                fontStyle: 'italic',
 
-              }}
-            >
-              bucket
-            </span>
-            !"
+              <span style={{ color: '#FF00DC', fontWeight: 'bold' }}>"</span>
+              This past summer was my first time interning at Meta in the Bay Area, and outside of work I had no idea what to do.{' '}
+              <span
+                style={{
+                  fontFamily: 'Inria Serif',
+                  fontWeight: 'bold',
+                  fontStyle: 'normal',
+                }}
+              >
+                Bucket
+              </span>{' '}
+              gave me a curated list of things to try, from local food spots to scenic hikes, and made exploring way less overwhelming.
+              <span style={{ color: '#FF00DC', fontWeight: 'bold' }}>"</span>
+              <br />
+              <br />
 
-            <br/> <br/> 
-            <span className="font-normal not-italic">Maya, 23</span>
+              {/* Testimonial block */}
+              <div className="flex items-center gap-4">
+                <div className="relative w-[80px] h-[80px]">
+                  <img
+                    src="/testimony.png"
+                    alt="Maya"
+                    className="w-full h-full rounded-xl object-cover"
+                  />
+                  <img
+                    src="/meta.png"
+                    alt="Meta Logo"
+                    className="absolute bottom-0 right-0 w-5 h-5"
+                  />
+                </div>
+                <div className="flex flex-col justify-center">
+                  <span className="text-black font-semibold not-italic">Maya, 21</span>
+                  <span className="text-gray-500 text-sm not-italic">Prev SWE Intern @ Meta</span>
+                </div>
+              </div>
             </Typography>
-            <img src="/maya.png"></img>
-
           </div>
         </div>    
       </Box>
@@ -251,7 +327,7 @@ export default function LandingPage() {
         }}
       >
         {/* Start of Hero Section 2*/}
-        <div className="flex flex-col items-center justify-center mt-15 text-center">
+        <div className="flex flex-col items-center justify-center mt-15 text-center ">
           {/* CTA 1 */}
           <Typography
             sx={{
@@ -277,15 +353,51 @@ export default function LandingPage() {
             }}
           >
             Lets make it{' '}
-            <span style={{
-              background: 'linear-gradient(to right, #00f0ff, #3b00ff, #b800f9, #ff007b)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              display: 'inline-block',
-            }}
-            >
-            happen
-              </span>.<br/>
+            <span className="animated-gradient-text">
+              happen
+            </span>
+
+            <style>
+              {`
+                .animated-gradient-text {
+                  background: linear-gradient(
+                    90deg,
+                    #00f0ff,
+                    #3b00ff,
+                    #b800f9,
+                    #ff007b,
+                    #ffae00,
+                    #00f0ff,
+                    #ffae00,
+                    #ff007b,
+                    #b800f9,
+                    #3b00ff,
+                    #00f0ff
+                  );
+                  background-size: 1000% 100%;
+                  background-clip: text;
+                  -webkit-background-clip: text;
+                  -webkit-text-fill-color: transparent;
+                  animation: rainbowShift 10s linear infinite;
+                  display: inline-block;
+                }
+
+                @keyframes rainbowShift {
+                  0% { background-position: 0% 50%; }
+                  100% { background-position: 100% 50%; }
+                }
+              `}
+            </style>.<br/>
+
+              <style>
+                {`
+                  @keyframes gradientShift {
+                    0% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                  }
+                `}
+              </style>
           </Typography>
 
           <div className="flex flex-col items-center justify-center text-center mt-10">
@@ -299,7 +411,7 @@ export default function LandingPage() {
                 color: 'grey'
               }}
             >
-              Join hundreds creating their dream lives with AI-generated <br/> bucket lists. Discover goals you didn’t know you had.
+              We’ll build your list based on your budget, location, <br/> and what you actually care about.
             </Typography>
             <TrustedBy/>
             {/* Generate Button */}
@@ -356,7 +468,7 @@ export default function LandingPage() {
               <span>© 2025</span>
               <span className="text-gray-600">—</span>
               <a
-                href="https://devpost.com/software/bucket" // <- replace with your real Devpost link
+                href="https://devpost.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors duration-300"
