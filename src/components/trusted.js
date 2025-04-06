@@ -37,7 +37,7 @@ export default function TrustedBy() {
         ))}
 
         {/* +100 bubble */}
-        <div className="w-10 h-10 rounded-full bg-white text-black text-sm flex items-center justify-center border-2 border-white font-medium z-10">
+        <div className="w-10 h-10 rounded-full bg-white text-black text-sm flex items-center justify-center border-2 border-white font-medium z-9">
           +50
         </div>
       </div>

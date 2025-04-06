@@ -6,10 +6,10 @@ import {Box, AppBar, Toolbar, Typography, Grid, Button} from "@mui/material";
 import '@fontsource/poppins';
 import '@fontsource/inter';
 import "@fontsource/inria-serif";
-import TrustedBy from '@/components/trusted.js';
-import TrustedBy2 from '@/components/trusted2.js';
-import Navbar from '@/components/navbar.js';
-import AnimatedWord from '@/components/animated.js';
+import TrustedBy from '../components/trusted.js';
+import TrustedBy2 from '../components/trusted2.js';
+import Navbar from '../components/navbar.js';
+import AnimatedWord from '../components/animated.js';
 
 
 export default function LandingPage() {
