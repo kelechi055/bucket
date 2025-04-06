@@ -20,12 +20,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" className="h-full">
         <head>
           <link rel="icon" href="/favicon.ico" sizes="any" />
         </head>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-transparent`}
         >
           {children}
         </body>
