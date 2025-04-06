@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Bucket <img src="/public/bucket-logo.png" alt="Bucket Preview" width="25"/>
 
-## Getting Started
+Personalized bucket lists powered by AI. Designed to help you explore your passions, one curated list at a time.
 
-First, run the development server:
+> [!NOTE]  
+> This project is still in development. A live demo is coming soon!
+
+## ✨ What is Bucket?
+
+**Bucket** is an AI-powered bucket list generator built for people exploring new places, starting internships, or just trying to discover new passions. Based on your location, interests, budget, availability, and more, it generates a list of unique experiences for you to explore.
+
+Whether you're solo, social, outdoorsy, or a foodie, **Bucket** has something for everyone.
+
+---
+
+## 🚀 Features
+
+- 🌐 AI-generated activities powered by the **Gemini API**
+- 📍 Location-aware suggestions
+- 💸 Personalized to your budget and availability
+- 🧭 Perfect for interns and explorers in unfamiliar cities
+- ✨ Smooth animated word transitions using Framer Motion
+- 🧠 Dynamic sparkles and branding visuals for delight
+
+> [!TIP]  
+> Bucket learns your preferences to give you ideas you didn’t even know you were looking for.
+
+---
+
+## 🧰 Tech Stack
+
+- [Next.js](https://nextjs.org/) (App Router)
+- [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Framer Motion](https://www.framer.com/motion/)
+- [Material UI](https://mui.com/)
+- [Gemini API](https://deepmind.google/technologies/gemini/)
+- [FontSource](https://www.npmjs.com/package/@fontsource) – Poppins, Inter, Inria Serif
+
+---
+
+## 🧪 Folder Structure
+
+```
+📦 bucket
+├── .next
+├── bucket
+├── node_modules
+├── public
+│   ├── images & assets
+├── src
+│   ├── app
+│   │   ├── api
+│   │   │   └── generate
+│   │   │       └── page.js      
+│   │   ├── layout.js
+│   │   └── page.js             
+│   ├── components
+│   │   ├── animated.js          
+│   │   ├── bucket_item.jsx      
+│   │   ├── navbar.js
+│   │   ├── summerLoader.js      
+│   │   ├── trusted.js
+│   │   └── trusted2.js
+│   └── globals.css
+```
+
+---
+
+## 💻 Running Locally
+
+To run Bucket locally:
+
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/kelechi055/bucket.git
+cd bucket
+```
+
+2. **Install dependencies**
+
+```bash
+npm install
+```
+
+3. **Set up environment variables**
+
+> [!NOTE]  
+> You’ll need access to the Gemini API to use the generation feature.
+
+Create a `.env.local` file:
+
+```bash
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+4. **Run the development server**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📜 Available Scripts
 
-## Learn More
+| Script        | Description                        |
+|---------------|------------------------------------|
+| `dev`         | Starts the local development server |
+| `build`       | Builds the app for production       |
+| `start`       | Starts the production server        |
+| `lint`        | Runs ESLint                         |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🤝 Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Got ideas or improvements? Feel free to fork the repo, submit issues, or open a PR. All contributions are welcome.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛡️ License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT License © 2025
+
+---
+
+## 🧠 Notes
+
+> [!TIP]  
+> This project was built with a focus on real-world usability. Whether you're a summer intern or just exploring a new city — **Bucket** makes planning adventures fun, personalized, and effortless.
+
+> [!CAUTION]  
+> Still polishing things! Expect frequent changes as we work toward the full release.
