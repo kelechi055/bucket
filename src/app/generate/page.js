@@ -58,78 +58,85 @@ export default function GenerateBucketPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
-    if (!auth.currentUser) {
-      try {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
-      } catch (error) {
-        setError("Could not sign in. Please try again.");
-        setLoading(false);
-        return;
-      }
-    }
-
+  
     const user = auth.currentUser;
-
-    if (user) {
-      try {
-        const response = await fetch("/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userInfo }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          const bucketItems = parseBucketItems(data.bucketList);
-          setParsedList(bucketItems);
-
-          setTimeout(() => {
-            if (anchorRef.current) {
-              anchorRef.current.scrollIntoView({ behavior: "smooth" });
-            }
-          }, 100);
-
-          await addDoc(collection(db, "bucketLists"), {
+    
+    if (!user) {
+      console.log("User not authenticated.");
+      setError("You need to sign in first.");
+      setLoading(false);
+      return;
+    }
+  
+    try {
+      // Call the API to generate the bucket list
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userInfo }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        const bucketItems = parseBucketItems(data.bucketList);
+        setParsedList(bucketItems); // Store the generated bucket items
+  
+        // Scroll to the generated bucket list
+        setTimeout(() => {
+          if (anchorRef.current) {
+            anchorRef.current.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 100);
+  
+        // Save to Firestore after generating the bucket list
+        await addDoc(
+          collection(db, `users/${user.uid}/savedBucketLists`), // Path: /users/{userId}/savedBucketLists
+          {
             userInfo,
             bucketItems,
             timestamp: new Date().toISOString(),
-            userId: user.uid,
-          });
-        } else {
-          setError(data.error || "Error generating bucket list.");
-        }
-      } catch {
-        setError("An error occurred while generating the bucket list.");
+          }
+        );
+      } else {
+        setError(data.error || "An error occurred while generating the bucket list.");
       }
-    } else {
-      setError("User not authenticated — cannot write to Firestore");
+    } catch (err) {
+      console.error("Error submitting form:", err);
+      setError("An error occurred while generating the bucket list.");
     }
-
+  
     setLoading(false);
   };
+  
 
   const handleSave = async () => {
     setLoading(true);
     const user = auth.currentUser;
     if (user && parsedList.length > 0) {
       try {
-        await addDoc(collection(db, "bucketLists"), {
-          userInfo,
-          bucketItems: parsedList,
-          timestamp: new Date().toISOString(),
-          userId: user.uid,
-        });
+        // Save to Firestore under the path /users/{userId}/savedBucketLists
+        await addDoc(
+          collection(db, `users/${user.uid}/savedBucketLists`), // Path: /users/{userId}/savedBucketLists
+          {
+            userInfo,
+            bucketItems: parsedList,
+            timestamp: new Date().toISOString(),
+          }
+        );
+        setLoading(false); // Stop loading once the save is successful
       } catch {
         setError("Error saving bucket list.");
+        setLoading(false); // Stop loading if there is an error
       }
     } else {
       setError("No bucket items to save or user not authenticated.");
+      setLoading(false); // Stop loading if there is no user or no items
     }
-    setLoading(false);
   };
+  
 
   if (loading) return <SummerLoader />;
 
