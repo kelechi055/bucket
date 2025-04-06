@@ -6,6 +6,8 @@ export default function BucketItem({
   rating,
   difficulty,
   tags,
+  location,
+  onClick,
 }) {
   // Color palette inspired by sunrise/sunset
   const sunsetColors = [
@@ -30,11 +32,19 @@ export default function BucketItem({
   };
 
   return (
-    <div className="flex items-start gap-4 p-4 border border-yellow-300 bg-yellow-50 rounded-2xl shadow-sm max-w-3xl w-full">
+    <div className="flex items-start gap-4 p-4 border border-yellow-300 bg-yellow-50 rounded-2xl shadow-sm max-w-3xl w-full my-1.5">
       {/* Location icon */}
-      <div className="text-blue-600 mt-1">
-        <FaMapMarkerAlt size={20} />
-      </div>
+      <a
+        href={location}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 mt-1 inline-block"
+      >
+        <FaMapMarkerAlt
+          size={20}
+          className="animate-[glow_3s_ease-in-out_infinite] drop-shadow-[0_0_1px_rgba(59,130,246,0.4)]"
+        />
+      </a>
 
       {/* Main content */}
       <div className="flex-1">
@@ -68,14 +78,12 @@ export default function BucketItem({
       </div>
 
       {/* Subtle icon buttons */}
-      <div className="flex flex-col items-end gap-2 mt-1">
-        <button className="flex items-center gap-1 text-green-700 hover:text-green-800 text-sm font-medium">
-          <FaEdit size={14} />
-          edit
-        </button>
-        <button className="flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-medium">
-          <FaTrashAlt size={14} />
-          remove
+      <div className="flex flex-row items-end gap-3 mt-1">
+        <button
+          onClick={onClick}
+          className="flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-semi-bold"
+        >
+          <FaTrashAlt size={17} />
         </button>
       </div>
     </div>
