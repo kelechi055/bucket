@@ -39,7 +39,6 @@ export default function Navbar() {
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
           {[
             { label: 'Home', href: '/' },
-            { label: 'About', href: '/about' },
             { label: 'Generate', href: '/generate' },
             { label: 'GitHub', href: 'https://github.com/kelechi055/bucket' },
           ].map((item) => (
