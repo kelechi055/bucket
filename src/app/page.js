@@ -196,7 +196,7 @@ export default function LandingPage() {
               AI generates <br /> your dream list
             </Typography>
           </div>
-          
+
           {/* Step 3 */}
           <div className="flex flex-col items-center">
             <div className="relative w-[200px] h-[250px] mb-2">
@@ -212,12 +212,12 @@ export default function LandingPage() {
                 0%,
                 100% {
                   filter: drop-shadow(0 0 5px rgb(255, 255, 255))
-                          drop-shadow(0 0 10px rgb(255, 255, 255));
+                    drop-shadow(0 0 10px rgb(255, 255, 255));
                   transform: scale(1);
                 }
                 50% {
                   filter: drop-shadow(0 0 15px rgb(255, 255, 255))
-                          drop-shadow(0 0 30px rgb(255, 255, 255));
+                    drop-shadow(0 0 30px rgb(255, 255, 255));
                   transform: scale(1.05);
                 }
               }
@@ -239,7 +239,6 @@ export default function LandingPage() {
             </Typography>
           </div>
 
-          
           {/* Step 4 */}
           <div className="flex flex-col items-center">
             <img
@@ -279,76 +278,76 @@ export default function LandingPage() {
           </Typography>
         </div>
 
-      <div className="flex flex-col items-center justify-center mt-0 mb-20 text-center">
-        <Typography
-          sx={{
-            fontFamily: "Poppins",
-            fontWeight: 600,
-            fontSize: "70px",
-            lineHeight: "70px",
-            color: "black",
-          }}
-        >
-          Here's what one of our users think.
-        </Typography>
-      </div>
-
-      {/* Centered Testimonial Section */}
-      <div className="flex justify-center">
-        <div className="w-full md:w-2/3 text-left">
+        <div className="flex flex-col items-center justify-center mt-0 mb-20 text-center">
           <Typography
-            component="div"
             sx={{
+              fontFamily: "Poppins",
+              fontWeight: 600,
+              fontSize: "70px",
+              lineHeight: "70px",
               color: "black",
-              fontFamily: "Inter",
-              fontStyle: "italic",
-              fontSize: "30px",
-              lineHeight: "1.6",
             }}
           >
-            <span style={{ color: "#FF00DC", fontWeight: "bold" }}>"</span>
-            This past summer was my first time interning at Meta in the Bay
-            Area, and outside of work I had no idea what to do.{" "}
-            <span
-              style={{
-                fontFamily: "Inria Serif",
-                fontWeight: "bold",
-                fontStyle: "normal",
-              }}
-            >
-              Bucket
-            </span>{" "}
-            gave me a curated list of things to try, from local food spots to
-            scenic hikes, and made exploring way less overwhelming.
-            <span style={{ color: "#FF00DC", fontWeight: "bold" }}>"</span>
-            <br />
-            <br />
-            {/* Testimonial block */}
-            <div className="flex items-center gap-4">
-              <div className="relative w-[80px] h-[80px]">
-                <img
-                  src="/testimony.png"
-                  alt="Maya"
-                  className="w-full h-full rounded-xl object-cover"
-                />
-                <img
-                  src="/meta.png"
-                  alt="Meta Logo"
-                  className="absolute bottom-0 right-0 w-5 h-5"
-                />
-              </div>
-              <div className="flex flex-col justify-center">
-                <span className="text-black font-semibold not-italic">
-                  Maya, 21
-                </span>
-                <span className="text-gray-500 text-sm not-italic">
-                  Prev SWE Intern @ Meta
-                </span>
-              </div>
-            </div>
+            Here's what one of our users think.
           </Typography>
         </div>
-      </div>
+
+        {/* Centered Testimonial Section */}
+        <div className="flex justify-center">
+          <div className="w-full md:w-2/3 text-left">
+            <Typography
+              component="div"
+              sx={{
+                color: "black",
+                fontFamily: "Inter",
+                fontStyle: "italic",
+                fontSize: "30px",
+                lineHeight: "1.6",
+              }}
+            >
+              <span style={{ color: "#FF00DC", fontWeight: "bold" }}>"</span>
+              This past summer was my first time interning at Meta in the Bay
+              Area, and outside of work I had no idea what to do.{" "}
+              <span
+                style={{
+                  fontFamily: "Inria Serif",
+                  fontWeight: "bold",
+                  fontStyle: "normal",
+                }}
+              >
+                Bucket
+              </span>{" "}
+              gave me a curated list of things to try, from local food spots to
+              scenic hikes, and made exploring way less overwhelming.
+              <span style={{ color: "#FF00DC", fontWeight: "bold" }}>"</span>
+              <br />
+              <br />
+              {/* Testimonial block */}
+              <div className="flex items-center gap-4">
+                <div className="relative w-[80px] h-[80px]">
+                  <img
+                    src="/testimony.png"
+                    alt="Maya"
+                    className="w-full h-full rounded-xl object-cover"
+                  />
+                  <img
+                    src="/meta.png"
+                    alt="Meta Logo"
+                    className="absolute bottom-0 right-0 w-5 h-5"
+                  />
+                </div>
+                <div className="flex flex-col justify-center">
+                  <span className="text-black font-semibold not-italic">
+                    Maya, 21
+                  </span>
+                  <span className="text-gray-500 text-sm not-italic">
+                    Prev SWE Intern @ Meta
+                  </span>
+                </div>
+              </div>
+            </Typography>
+          </div>
+        </div>
 
         {/* IPAD + TESTIMONIAL */}
         <div className="flex flex-col items-center">
@@ -496,22 +495,48 @@ export default function LandingPage() {
             {/* Meet the Creators Section */}
             <div className="bg-transparent py-12 mt-45">
               <div className="max-w-4xl mx-auto text-center">
-                <h2 className="text-3xl font-bold font-poppins mb-8 text-white">Meet the Team</h2>
+                <h2 className="text-3xl font-bold font-poppins mb-8 text-white">
+                  Meet the Team
+                </h2>
                 <div className="flex justify-center flex-wrap gap-10">
                   {[
-                    { name: "Kelechi", image: "/kelechi.jpg" },
-                    { name: "Sam", image: "/sam.jpg" },
-                    { name: "Miles", image: "/miles.jpg" },
-                    { name: "Hans", image: "/hans.jpg" },
+                    {
+                      name: "Kelechi",
+                      image: "/kelechi.jpg",
+                      href: "https://www.linkedin.com/in/kelechi-opurum/",
+                    },
+                    {
+                      name: "Sam",
+                      image: "/sam.jpg",
+                      href: "https://www.linkedin.com/in/samhersick/",
+                    },
+                    {
+                      name: "Miles",
+                      image: "/miles.jpg",
+                      href: "https://www.linkedin.com/in/miles-hall1/",
+                    },
+                    {
+                      name: "Hans",
+                      image: "/hans.jpg",
+                      href: "https://www.linkedin.com/in/hans-van-lierop/",
+                    },
                   ].map((creator) => (
-                    <div key={creator.name} className="flex flex-col items-center">
+                    <a
+                      key={creator.name}
+                      href={creator.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex flex-col items-center transition-transform hover:scale-105"
+                    >
                       <img
                         src={creator.image}
                         alt={creator.name}
-                        className="w-32 h-32 rounded-full object-cover shadow-md transition hover:scale-105"
+                        className="w-32 h-32 rounded-full object-cover shadow-md"
                       />
-                      <span className="mt-3 text-white font-medium text-lg">{creator.name}</span>
-                    </div>
+                      <span className="mt-3 text-white font-medium text-lg">
+                        {creator.name}
+                      </span>
+                    </a>
                   ))}
                 </div>
               </div>

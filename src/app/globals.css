@@ -18,14 +18,14 @@
   }
 } */
 
-@import "@fontsource/fredoka"; 
+@import "@fontsource/fredoka";
 
 .font-fredoka {
-  font-family: 'Fredoka', sans-serif;
+  font-family: "Fredoka", sans-serif;
 }
 
 .generate-bg {
-  background-image: url('/generate-bg.png');
+  background-image: url("/generate-bg.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -34,9 +34,8 @@
 body {
   background-color: transparent;
   color: var(--foreground);
-  font-family: 'Fredoka', sans-serif;
+  font-family: "Fredoka", sans-serif;
 }
-
 
 /* .ai-bg {
   position: absolute;
