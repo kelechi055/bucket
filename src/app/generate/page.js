@@ -233,24 +233,10 @@ export default function GenerateBucketPage() {
                       value={userInfo[field.name]}
                       onChange={handleInputChange}
                       placeholder={field.placeholder}
-                      className={`w-full px-4 py-3 bg-gray-100 text-gray-600 rounded-full placeholder-gray-500 focus:outline-none border ${field.border}`}
+                      className={`w-full px-4 py-3 bg-gray-100 text-black font-bold text-lg rounded-full placeholder-gray-400 focus:outline-none border ${field.border}`}
                     />
                   </div>
                 ))}
-
-                <div className="col-span-2">
-                  <label className="block text-lg font-semibold text-black mb-2 text-center">
-                    Extra Info
-                  </label>
-                  <input
-                    type="text"
-                    name="extra_details"
-                    value={userInfo.extra_details}
-                    onChange={handleInputChange}
-                    placeholder="Anything else we should know?"
-                    className="w-full px-4 py-3 bg-gray-100 text-gray-600 rounded-full placeholder-gray-500 focus:outline-none border border-sky-400"
-                  />
-                </div>
               </div>
 
               <button
