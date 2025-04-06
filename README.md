@@ -1,6 +1,10 @@
+
 # Bucket <img src="/public/bucket-logo.png" alt="Bucket Preview" width="25"/>
 
+**🏆 1st Place Overall & AI/ML Track Winner @ HackHounds 2025**
+
 Personalized bucket lists powered by AI. Designed to help you explore your passions, one curated list at a time.
+
 
 > [!NOTE]  
 > This project was imagined at HackHounds 2025 and is still in development. A live demo is coming soon!
