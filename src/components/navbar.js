@@ -8,7 +8,10 @@ export default function Navbar() {
 
   return (
     <AppBar position="fixed" sx={{ backgroundColor: 'black' }}>
-      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+      <Toolbar
+        className="font-fredoka"
+        sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}
+      >
         {/* Left side (Bucket Logo) */}
         <Box
           sx={{
@@ -36,7 +39,6 @@ export default function Navbar() {
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
           {[
             { label: 'Home', href: '/' },
-            { label: 'About', href: '/about' },
             { label: 'Generate', href: '/generate' },
             { label: 'GitHub', href: 'https://github.com/kelechi055/bucket' },
           ].map((item) => (
@@ -55,14 +57,17 @@ export default function Navbar() {
               {item.label}
             </Button>
           ))}
-          {/* Display SignIn/SignUp buttons if not signed in */}
           {!isSignedIn ? (
             <>
               <SignInButton mode="modal">
-                <button className="border px-4 py-2 rounded border-white">Sign In</button>
+                <button className="border px-4 py-2 rounded border-white text-white hover:bg-white hover:text-black transition-all">
+                  Sign In
+                </button>
               </SignInButton>
               <SignUpButton mode="modal">
-                <button className="bg-white text-black px-4 py-2 rounded">Sign Up</button>
+                <button className="bg-white text-black px-4 py-2 rounded hover:bg-gray-200 transition-all">
+                  Sign Up
+                </button>
               </SignUpButton>
             </>
           ) : (
