@@ -6,7 +6,6 @@ import { Box } from "@mui/material";
 import SummerLoader from "../../components/summerLoader";
 import { collection, addDoc } from "firebase/firestore";
 import { auth } from "/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { db } from "/firebase";
 import React, { useState, useRef } from "react";
 import "@fontsource/fredoka";
@@ -148,9 +147,8 @@ export default function GenerateBucketPage() {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        minHeight: "100vh",
-        pt: 16,
-        pb: 16,
+        minHeight: "110vh",
+        py: 12,
       }}
     >
       <div className="min-h-screen">
@@ -264,8 +262,15 @@ export default function GenerateBucketPage() {
 
               <button
                 type="button"
-                className="w-full p-3 bg-green-500 text-white text-xl rounded-md hover:bg-green-600 mt-4"
-                onClick={handleSave}
+                className={
+                  parsedList.length != 0
+                    ? "w-full p-3 bg-green-500 text-white text-xl rounded-md hover:bg-green-600 mt-4"
+                    : "hidden"
+                }
+                onClick={() => {
+                  handleSave();
+                  window.open("/premium", "_blank");
+                }}
               >
                 Save Bucket List
               </button>

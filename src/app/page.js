@@ -340,7 +340,7 @@ export default function LandingPage() {
             Ready for your next adventure? <br />
           </Typography>
         </div>
-        <div className="flex flex-col items-center justify-center mb-0 mt-0 text-center">
+        <div className="flex flex-col items-center justify-center text-center">
           {/* CTA pt.2 */}
           <Typography
             sx={{
@@ -450,7 +450,31 @@ export default function LandingPage() {
                 </Button>
               </Link>
             </div>
-            <div className="flex items-center justify-center text-gray-400 mt-40 space-x-4 text-sm font-medium">
+
+            {/* Meet the Creators Section */}
+            <div className="bg-transparent py-12 mt-45">
+              <div className="max-w-4xl mx-auto text-center">
+                <h2 className="text-3xl font-bold font-poppins mb-8 text-white">Meet the Team</h2>
+                <div className="flex justify-center flex-wrap gap-10">
+                  {[
+                    { name: "Kelechi", image: "/kelechi.jpg" },
+                    { name: "Sam", image: "/sam.jpg" },
+                    { name: "Miles", image: "/miles.jpg" },
+                    { name: "Hans", image: "/hans.jpg" },
+                  ].map((creator) => (
+                    <div key={creator.name} className="flex flex-col items-center">
+                      <img
+                        src={creator.image}
+                        alt={creator.name}
+                        className="w-32 h-32 rounded-full object-cover shadow-md transition hover:scale-105"
+                      />
+                      <span className="mt-3 text-white font-medium text-lg">{creator.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-center text-gray-400 mt-5 space-x-4 text-sm font-medium">
               <a
                 href="https://github.com/kelechi055/bucket"
                 target="_blank"
@@ -462,15 +486,18 @@ export default function LandingPage() {
               <span className="text-gray-600">—</span>
               <span>© 2025</span>
               <span className="text-gray-600">—</span>
-              <a
+              <footer
                 href="https://devpost.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors duration-300"
               >
                 DEVPOST
-              </a>
+              </footer>
             </div>
+            <p class="text-20mx text-gray-400 mt-2 text-center italic">
+              Imagined at HackHounds 2025 Hackathon
+            </p>
           </div>
         </div>
       </Box>
