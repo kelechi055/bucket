@@ -227,11 +227,8 @@ export default function LandingPage() {
               color: 'black',
             }}
           >
-            Dont just take <span style={{color: '#FF00DC'}}
-            >
-              our 
-              </span
-              > word for it.
+            Dont just take <span style={{color: '#FF00DC'}}>
+            our </span> word for it.
           </Typography>
         </div>
 
