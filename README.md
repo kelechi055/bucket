@@ -3,7 +3,7 @@
 Personalized bucket lists powered by AI. Designed to help you explore your passions, one curated list at a time.
 
 > [!NOTE]  
-> This project is still in development. A live demo is coming soon!
+> This project was imagined at HackHounds 2025 and is still in development. A live demo is coming soon!
 
 ## ✨ What is Bucket?
 
