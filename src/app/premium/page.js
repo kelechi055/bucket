@@ -1,7 +1,9 @@
 "use client";
 import Navbar from "../../components/navbar";
 
+
 import { AlertCircle } from "lucide-react";
+
 
 export default function PremiumComingSoon() {
   return (
@@ -21,5 +23,5 @@ export default function PremiumComingSoon() {
         </div>
       </div>
     </div>
-  );
-}
+    )
+  }

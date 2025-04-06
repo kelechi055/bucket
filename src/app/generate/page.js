@@ -6,12 +6,11 @@ import { Box } from "@mui/material";
 import SummerLoader from "../../components/summerLoader";
 import { collection, addDoc } from "firebase/firestore";
 import { auth } from "/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { db } from "/firebase";
 import React, { useState, useRef } from "react";
 import "@fontsource/fredoka";
-import { FaEdit } from "react-icons/fa";
 import AddBtn from "../../components/add_input";
+
 
 function parseBucketItems(rawString) {
   const cleaned = rawString.replace(/```json\s*|\s*```/g, "");
@@ -101,9 +100,7 @@ export default function GenerateBucketPage() {
           }
         );
       } else {
-        setError(
-          data.error || "An error occurred while generating the bucket list."
-        );
+        setError(data.error || "An error occurred while generating the bucket list.");
       }
     } catch (err) {
       console.error("Error submitting form:", err);
