@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import BucketItem from "@/components/bucket_item";
 import Navbar from "@/components/navbar";
+import AddBtn from "@/components/add_input.js";
 import SummerLoader from "@/components/summerLoader";
 import { element } from "prop-types";
 
@@ -17,6 +18,14 @@ function parseBucketItems(rawString) {
     console.error("Failed to parse bucket items:", error);
     return [];
   }
+}
+
+function manualAdd() {
+  return (
+    <>
+      <input className="w-full p-3 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"></input>
+    </>
+  );
 }
 
 export default function GenerateBucketPage() {
@@ -272,6 +281,7 @@ export default function GenerateBucketPage() {
           );
         })}
       </div>
+      {parsedList.length != 0 ? <AddBtn /> : ""}
     </div>
   );
 }
