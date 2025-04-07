@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Box, AppBar, Toolbar, Typography, Grid, Button } from "@mui/material";
@@ -12,8 +13,25 @@ import Navbar from "../components/navbar.js";
 import AnimatedWord from "../components/animated.js";
 
 export default function LandingPage() {
+  const [mobileNoticeVisible, setMobileNoticeVisible] = useState(true);
+
   return (
     <Box>
+      {/* Note To Mobile Users*/}
+      {mobileNoticeVisible && (
+        <div className="block md:hidden bg-yellow-500 text-black text-center p-3 mt-16">
+          <p className="text-sm">
+            Note: Due to time constraint, the mobile experience of Bucket is not fully optimized right now.
+            For the best experience, please use a desktop. Thanks - Kelechi
+          </p>
+          <button
+            className="mt-1 text-xs underline"
+            onClick={() => setMobileNoticeVisible(false)}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <Box
         sx={{
           display: "flex",
@@ -106,7 +124,6 @@ export default function LandingPage() {
             </Button>
           </Link>
         </div>
-
         {/* End of Hero Section */}
       </Box>
 
@@ -553,18 +570,18 @@ export default function LandingPage() {
               <span className="text-gray-600">—</span>
               <span>© 2025</span>
               <span className="text-gray-600">—</span>
-              <footer
-                href="https://devpost.com"
+              <a
+                href="https://devpost.com/software/bucket-3hzwcf"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors duration-300"
               >
                 DEVPOST
-              </footer>
+              </a>
             </div>
-            <p className="text-20mx text-gray-400 mt-2 text-center italic">
+            <div className="text-20mx text-gray-400 mt-0 text-center italic">
               Imagined at HackHounds 2025 Hackathon
-            </p>
+            </div>
           </div>
         </div>
       </Box>
