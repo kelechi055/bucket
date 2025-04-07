@@ -137,5 +137,8 @@ MIT License © 2025
 > [!TIP]  
 > This project was built with a focus on real-world usability. Whether you're a summer intern or just exploring a new city — **Bucket** makes planning adventures fun, personalized, and effortless.
 
+>[!NOTE]
+> Bucket is not fully responsive on mobile due to time constraints; it's best used on desktop.
+
 > [!CAUTION]  
 > Still polishing things! Expect frequent changes as we work toward the full release.
