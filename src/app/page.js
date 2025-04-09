@@ -149,9 +149,9 @@ export default function LandingPage() {
           </Typography>
         </div>
 
-        <div className="flex flex-row items-center justify-center text-center mb-10 space-x-12 space-x-50">
+        <div className="flex flex-row items-center justify-center text-center mb-10 space-x-10 space-x-30">
           {/* Step 1 */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center mr-10">
             <img
               src="/brain.png"
               alt="Brain Logo"
@@ -166,6 +166,7 @@ export default function LandingPage() {
                 fontSize: "20px",
                 fontWeight: 400,
                 textAlign: "center",
+                marginRight: "50px"
               }}
             >
               Tell us about <br /> yourself
