@@ -7,7 +7,7 @@ Personalized bucket lists powered by AI. Designed to help you explore your passi
 
 
 > [!NOTE]  
-> This project was imagined at HackHounds 2025 and is still in development. Check out the [Live Demo](https://www.youtube.com/watch?v=ZKqaYJEHWIg).
+> This project is still in development. Check out the [Live Demo](https://www.youtube.com/watch?v=ZKqaYJEHWIg).
 
 ## ✨ What is Bucket?
 
