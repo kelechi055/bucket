@@ -157,7 +157,7 @@ export default function LandingPage() {
               alt="Brain Logo"
               width={350}
               height={250}
-              style={{ marginBottom: "8px" }}
+              style={{ marginBottom: "8px", marginRight: "35px"}}
             />
             <Typography
               sx={{
@@ -174,6 +174,51 @@ export default function LandingPage() {
           </div>
 
           {/* Step 2 */}
+          <div className="flex flex-col items-center">
+            <div className="relative w-[200px] h-[250px] mb-2">
+              <img
+                src="/location.png"
+                alt="Location Icon"
+                className="w-full h-full object-contain animate-neon-sparkle"
+              />
+            </div>
+
+            <style jsx>{`
+              @keyframes neon-sparkle {
+                0%,
+                100% {
+                  filter: drop-shadow(0 0 5px rgb(255, 255, 255))
+                    drop-shadow(0 0 10px rgb(255, 255, 255));
+                  transform: scale(1);
+                }
+                50% {
+                  filter: drop-shadow(0 0 15px rgb(255, 255, 255))
+                    drop-shadow(0 0 30px rgb(255, 255, 255));
+                  transform: scale(1.05);
+                }
+              }
+
+              .animate-neon-sparkle {
+                animation: neon-sparkle 2s ease-in-out infinite;
+              }
+            `}</style>
+
+            <Typography
+              sx={{
+                fontFamily: "Inter",
+                color: "black",
+                fontSize: "20px",
+                textAlign: "center",
+                marginTop: "30px",
+                marginRight: "50px",
+                marginLeft: "50px"
+              }}
+            >
+              Choose where <br /> your journey begins
+            </Typography>
+          </div>
+
+          {/* Step 3 */}
           <div className="flex flex-col items-center">
             <div className="relative w-[350px] h-[250px] mb-2">
               <img
@@ -212,48 +257,6 @@ export default function LandingPage() {
               }}
             >
               AI generates <br /> your dream list
-            </Typography>
-          </div>
-
-          {/* Step 3 */}
-          <div className="flex flex-col items-center">
-            <div className="relative w-[200px] h-[250px] mb-2">
-              <img
-                src="/location.png"
-                alt="Location Icon"
-                className="w-full h-full object-contain animate-neon-sparkle"
-              />
-            </div>
-
-            <style jsx>{`
-              @keyframes neon-sparkle {
-                0%,
-                100% {
-                  filter: drop-shadow(0 0 5px rgb(255, 255, 255))
-                    drop-shadow(0 0 10px rgb(255, 255, 255));
-                  transform: scale(1);
-                }
-                50% {
-                  filter: drop-shadow(0 0 15px rgb(255, 255, 255))
-                    drop-shadow(0 0 30px rgb(255, 255, 255));
-                  transform: scale(1.05);
-                }
-              }
-
-              .animate-neon-sparkle {
-                animation: neon-sparkle 2s ease-in-out infinite;
-              }
-            `}</style>
-
-            <Typography
-              sx={{
-                fontFamily: "Inter",
-                color: "black",
-                fontSize: "20px",
-                textAlign: "center",
-              }}
-            >
-              Choose where <br /> your journey begins
             </Typography>
           </div>
 
