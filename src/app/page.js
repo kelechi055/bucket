@@ -301,12 +301,12 @@ export default function LandingPage() {
             sx={{
               fontFamily: "Poppins",
               fontWeight: 600,
-              fontSize: "70px",
+              fontSize: "63px",
               lineHeight: "70px",
               color: "black",
             }}
           >
-            Here's what one of our users think.
+            Here's what one of our 300+ users think.
           </Typography>
         </div>
 
@@ -321,6 +321,7 @@ export default function LandingPage() {
                 fontStyle: "italic",
                 fontSize: "30px",
                 lineHeight: "1.6",
+                backgroundColor: "FF00DC"
               }}
             >
               <span style={{ color: "#FF00DC", fontWeight: "bold" }}>"</span>
@@ -330,7 +331,7 @@ export default function LandingPage() {
                 style={{
                   fontFamily: "Inria Serif",
                   fontWeight: "bold",
-                  fontStyle: "normal",
+                  fontStyle: "italic",
                 }}
               >
                 Bucket
