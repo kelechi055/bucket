@@ -186,3 +186,9 @@ MIT License © 2025
 
 > [!CAUTION]  
 > Still polishing things! Expect frequent changes as we work toward the full release.
+
+## Continuous integration
+
+GitHub Actions runs `npm ci`, lint, type checks, and a production build on pull requests and pushes to `master`. It uses Node 24 from `.nvmrc` and a build-only Clerk placeholder; no GitHub secrets are required. These checks do not test live sign-in, list persistence, or AI generation. Vercel continues to handle deployments.
+
+You can also run CI manually from the repository's **Actions → CI → Run workflow** menu.
