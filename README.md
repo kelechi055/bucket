@@ -93,11 +93,14 @@ npm install
 > [!NOTE]  
 > You’ll need access to the Gemini API to use the generation feature.
 
-Create a `.env.local` file:
+Copy the example to `.env.local`, then replace the placeholder with your API key:
 
 ```bash
-GEMINI_API_KEY=your_gemini_api_key
+cp .env.example .env.local
 ```
+
+Real `.env` files stay local and are ignored by Git. When deploying, set
+`GEMINI_API_KEY` in your hosting provider's environment settings.
 
 4. **Run the development server**
 

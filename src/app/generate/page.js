@@ -100,14 +100,13 @@ export default function GenerateBucketPage() {
           }
         );
       } else {
-        console.log("Error storing on cloud");
-        /*setError(
+        setError(
           data.error || "An error occurred while generating the bucket list."
-        );*/
+        );
       }
     } catch (err) {
       console.error("Error submitting form:", err);
-      //setError("An error occurred while generating the bucket list.");
+      setError("An error occurred while generating the bucket list. Please try again.");
     }
 
     setLoading(false);

@@ -1,6 +1,32 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
+function getApiStatus(error) {
+  const status = Number(error?.status ?? error?.code);
+  if (Number.isInteger(status) && status >= 400 && status <= 599) {
+    return status;
+  }
+  // @google/genai 0.7 reports the HTTP status in the message.
+  const match = error?.message?.match(/got status:\s*(\d{3})\b/);
+  return match ? Number(match[1]) : undefined;
+}
+
+function isTemporaryError(error) {
+  return [429, 500, 502, 503, 504].includes(getApiStatus(error));
+}
+
+async function generateWithRetry(ai, params) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await ai.models.generateContent(params);
+    } catch (error) {
+      if (!isTemporaryError(error) || attempt === 2) throw error;
+      const delay = 1000 * 2 ** attempt + Math.floor(Math.random() * 500);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+}
+
 export async function POST(request) {
   const { userInfo } = await request.json();
 
@@ -78,8 +104,8 @@ export async function POST(request) {
     `;
 
     // Generate the bucket list using Gemini API
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash", // Use the correct model version
+    const response = await generateWithRetry(ai, {
+      model: process.env.GEMINI_MODEL || "gemini-3.8-flash",
       contents: prompt,
     });
 
@@ -96,6 +122,12 @@ export async function POST(request) {
     return NextResponse.json({ bucketList });
   } catch (error) {
     console.error("Error generating bucket list:", error);
+    if (isTemporaryError(error)) {
+      return NextResponse.json(
+        { error: "The activity generator is temporarily busy. Please try again shortly." },
+        { status: 503, headers: { "Retry-After": "10" } }
+      );
+    }
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
