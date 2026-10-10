@@ -39,6 +39,7 @@ export default function GenerateBucketPage() {
 
   const [parsedList, setParsedList] = useState([]);
   const [error, setError] = useState(null);
+  const [saveNotice, setSaveNotice] = useState(null);
   const [loading, setLoading] = useState(false);
   const anchorRef = useRef(null);
 
@@ -56,16 +57,8 @@ export default function GenerateBucketPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setSaveNotice(null);
     setLoading(true);
-
-    const user = auth.currentUser;
-
-    /*if (!user) {
-      console.log("User not authenticated.");
-      setError("You need to sign in first.");
-      setLoading(false);
-      return;
-    }*/
 
     try {
       // Call the API to generate the bucket list
@@ -90,15 +83,21 @@ export default function GenerateBucketPage() {
           }
         }, 100);
 
-        // Save to Firestore after generating the bucket list
-        await addDoc(
-          collection(db, `users/${user.uid}/savedBucketLists`), // Path: /users/{userId}/savedBucketLists
-          {
-            userInfo,
-            bucketItems,
-            timestamp: new Date().toISOString(),
+        const user = auth.currentUser;
+        if (!user) {
+          setSaveNotice("Your list is ready, but it hasn't been saved to your account. Account saving is currently unavailable.");
+        } else {
+          try {
+            await addDoc(
+              collection(db, `users/${user.uid}/savedBucketLists`),
+              { userInfo, bucketItems, timestamp: new Date().toISOString() }
+            );
+            setSaveNotice("Your bucket list has been saved to your account.");
+          } catch (saveError) {
+            console.error("Error saving generated bucket list:", saveError);
+            setSaveNotice("Your list is ready, but saving failed. You can try the Save Bucket List button again.");
           }
-        );
+        }
       } else {
         setError(
           data.error || "An error occurred while generating the bucket list."
@@ -113,6 +112,8 @@ export default function GenerateBucketPage() {
   };
 
   const handleSave = async () => {
+    setError(null);
+    setSaveNotice(null);
     setLoading(true);
     const user = auth.currentUser;
     if (user && parsedList.length > 0) {
@@ -126,13 +127,16 @@ export default function GenerateBucketPage() {
             timestamp: new Date().toISOString(),
           }
         );
+        setSaveNotice("Your bucket list has been saved to your account.");
         setLoading(false); // Stop loading once the save is successful
       } catch {
         setError("Error saving bucket list.");
         setLoading(false); // Stop loading if there is an error
       }
     } else {
-      setError("No bucket items to save or user not authenticated.");
+      setError(!user
+        ? "Account saving is currently unavailable. Your generated list is still shown below."
+        : "Generate a bucket list before saving.");
       setLoading(false); // Stop loading if there is no user or no items
     }
   };
@@ -252,15 +256,13 @@ export default function GenerateBucketPage() {
                     ? "w-full p-3 bg-green-500 text-white text-xl rounded-md hover:bg-green-600 mt-4"
                     : "hidden"
                 }
-                onClick={() => {
-                  handleSave();
-                  window.open("/premium", "_blank");
-                }}
+                onClick={handleSave}
               >
                 Save Bucket List
               </button>
 
               {error && <p className="mt-4 text-red-500">{error}</p>}
+              {saveNotice && <p role="status" className="mt-4 text-gray-800">{saveNotice}</p>}
             </form>
 
             <div id="bucket-anchor" ref={anchorRef}>
