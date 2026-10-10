@@ -10,7 +10,7 @@ export default function TrustedBy2() {
   ];
 
   return (
-    <div className="flex items-center space-x-3 mt-12">
+    <div className="flex flex-wrap items-center justify-center gap-3 mt-8 sm:mt-12">
       {/* Trusted By Text */}
       <p
         className="text-black text-lg font-medium"

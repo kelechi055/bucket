@@ -1,21 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SignInButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Bookmark, ChevronDown, MapPin, Plus, Search, Share2, Pencil, Trash2, Compass, CalendarDays, Star, Users, Map as MapIcon } from "lucide-react";
 import Navbar from "../../components/navbar";
 import BucketItem from "../../components/bucket_item";
-import { loadBucketLists, deleteBucketList, saveTripPlan, publishList, revokeListShare, dateMillis, updatePlan, updatePersonalList, addCustomStop, reorderStops, createCollaborativeList, watchCollaborativeLists, createInvite, disableInvite, removeCollaborator, deleteCollaborativeList } from "../../lib/saved-lists";
+import { loadBucketLists, saveTripPlan, publishList, revokeListShare, dateMillis, updatePlan, updatePersonalList, addCustomStop, reorderStops, createCollaborativeList, watchCollaborativeLists, createInvite, disableInvite, removeCollaborator, trashList, restoreList } from "../../lib/saved-lists";
 
+import { BudgetPanel, VotingPanel, TravelPanel } from "./plan-extras";
+import { budgetTotal } from "../../lib/plan-extras";
 import { listTitle, progressStatus, orderedStopIndices, validateTrip } from "../../lib/list-planning";
 import { StopNote, TripPlanner, SharePanel } from "./list-tools";
 
+import { CalendarExport, NearbyDiscoveries } from "./discovery-tools";
 import { CustomStopForm, ReorderItinerary, CollaborationPanel } from "./collection-tools";
 const ListMap = dynamic(() => import("./list-map"), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-stone-500">Loading map…</p> });
 
-function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, onPublish, onRevoke, onFavorite, onStopFavorite, onAdd, onReorder, onCreateTeam, onInvite, onDisableInvite, onRemoveMember, userId }) {
+function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, onPublish, onRevoke, onFavorite, onStopFavorite, onAdd, onReorder, onCreateTeam, onInvite, onDisableInvite, onRemoveMember, onBudget, userId, getToken }) {
+  const card = useRef(null);
+  useEffect(() => {
+    if (window.location.hash === `#list-${encodeURIComponent(list.id)}` && card.current) {
+      const details = card.current.querySelector('details');
+      if (details) details.open = true;
+      card.current.scrollIntoView({ block: 'start' });
+    }
+  }, [list.id]);
+  const [budgeting, setBudgeting] = useState(false), [voting, setVoting] = useState(false), [traveling, setTraveling] = useState(false);
+  const [lastCompletion, setLastCompletion] = useState(null);
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -23,6 +36,7 @@ function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, o
   const title = listTitle(list);
   const [planning, setPlanning] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [discovering, setDiscovering] = useState(false);
   const [adding, setAdding] = useState(false);
   const [collaborating, setCollaborating] = useState(false);
   const [mapView, setMapView] = useState(false);
@@ -56,7 +70,7 @@ function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, o
   async function toggle(index, completed) {
     setBusy(true);
     setError("");
-    try { await onComplete(list.id, index, completed); }
+    try { await onComplete(list.id, index, completed); setLastCompletion({ index, previous: !completed }); }
     catch { setError("Unable to save your progress. Please try again."); }
     finally { setBusy(false); }
   }
@@ -74,10 +88,10 @@ function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, o
   }
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
+    <article ref={card} id={`list-${encodeURIComponent(list.id)}`} className="scroll-mt-24 overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
       <details className="group">
-        <summary className="flex cursor-pointer list-none items-start gap-4 p-5 focus-visible:outline-2 focus-visible:outline-amber-600 sm:p-7 [&::-webkit-details-marker]:hidden">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-800"><Bookmark size={22} aria-hidden="true" /></span>
+        <summary className="flex cursor-pointer list-none items-start gap-3 p-4 sm:gap-4 sm:p-5 focus-visible:outline-2 focus-visible:outline-amber-600 sm:p-7 [&::-webkit-details-marker]:hidden">
+          <span className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-800"><Bookmark size={22} aria-hidden="true" /></span>
           <span className="min-w-0 flex-1">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-widest text-amber-800">{list.teamId ? "Shared plan" : list.sourceGuideId ? "City guide" : "Your adventure"}{list.favorite && " · ★ Pinned"}</span>
             <span className="block break-words text-xl font-bold tracking-tight text-stone-950 sm:text-2xl">{title}</span>
@@ -95,8 +109,11 @@ function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, o
           </span>
           <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-500 transition group-open:rotate-180"><ChevronDown size={18} aria-hidden="true" /></span>
         </summary>
-        <div className="border-t border-stone-100 bg-amber-50/40 px-5 py-5 sm:px-7">
+        <div className="border-t border-stone-100 bg-amber-50/40 px-3 py-4 sm:px-7 sm:py-5">
           <div className="mb-4 flex flex-wrap gap-2"><button type="button" aria-pressed={mapView} onClick={() => setMapView(!mapView)} className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-amber-900"><MapIcon size={16} aria-hidden="true" />{mapView ? "Hide map" : "Map view"}</button><button type="button" aria-pressed={favoriteStopsOnly} onClick={() => setFavoriteStopsOnly(!favoriteStopsOnly)} className={`rounded-xl border px-3 py-2 text-sm ${favoriteStopsOnly ? "border-amber-300 bg-amber-100 text-amber-900" : "border-stone-200 bg-white text-stone-500"}`}>Favorite stops</button></div>
+          <CalendarExport list={list} />
+          {lastCompletion && <div role="status" className="mb-4 flex flex-wrap items-center gap-3 text-sm"><span>Progress updated.</span><button type="button" disabled={busy} onClick={async () => { setBusy(true); try { await onComplete(list.id, lastCompletion.index, lastCompletion.previous); setLastCompletion(null); } catch { setError("Unable to undo progress."); } finally { setBusy(false); } }} className="min-h-11 px-3 font-semibold text-amber-800 underline">Undo</button></div>}
+          <p className="mb-4 text-sm text-stone-600">{list.budget ? `Estimated cost: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(budgetTotal(list) / 100)}` : "Set your trip estimates with Budget."}</p>
           {mapView && <ListMap list={list} />}
           {items.length > 0 && <ReorderItinerary list={list} onReorder={(order) => onReorder(list.id, order)} />}
           <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-stone-500">The plan · check off each stop as you go</p>
@@ -112,17 +129,25 @@ function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, o
           {favoriteStopsOnly && !items.some((_, index) => list.favoriteItems?.[index]) && <p className="text-sm text-stone-500">Star a stop to find it here.</p>}
         </div>
       </details>
-      <div className="flex flex-wrap items-center gap-2 border-t border-stone-100 px-5 py-3 sm:px-7">
+      <div className="list-actions grid grid-cols-2 gap-2 border-t border-stone-100 px-3 py-3 sm:flex sm:flex-wrap sm:items-center sm:px-7">
         <button type="button" disabled={busy} aria-pressed={Boolean(list.favorite)} onClick={() => favorite()} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-amber-800 hover:bg-amber-50"><Star size={15} fill={list.favorite ? "currentColor" : "none"} aria-hidden="true" />{list.favorite ? "Pinned" : "Pin list"}</button>
         {owner && <button type="button" onClick={() => { setSharing(!sharing); setPlanning(false); }} disabled={busy} aria-label={`Share ${title}`} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100 disabled:opacity-50"><Share2 size={15} aria-hidden="true" />Share</button>}
         <button type="button" disabled={busy} onClick={() => { setDraft(title); setRenaming(true); setConfirming(false); }} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100 disabled:opacity-50"><Pencil size={15} aria-hidden="true" />Rename</button>
         <button type="button" disabled={busy} onClick={() => { setPlanning(!planning); setSharing(false); }} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100"><CalendarDays size={15} aria-hidden="true" />Plan trip</button>
+        <button type="button" disabled={busy} onClick={() => setDiscovering(!discovering)} aria-expanded={discovering} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100"><Compass size={15} aria-hidden="true" />Nearby discoveries</button>
         <button type="button" disabled={busy} onClick={() => setAdding(!adding)} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100"><Plus size={15} aria-hidden="true" />Add stop</button>
         <button type="button" disabled={busy} onClick={() => setCollaborating(!collaborating)} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100"><Users size={15} aria-hidden="true" />Collaborate</button>
-        {!confirming && <button type="button" disabled={busy} onClick={() => { setConfirming(true); setRenaming(false); }} className="ml-auto inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-red-700 hover:bg-red-50 disabled:opacity-50" aria-label={`Delete ${title}`}><Trash2 size={15} aria-hidden="true" />{owner ? "Delete" : "Leave plan"}</button>}
+        <button type="button" onClick={() => setBudgeting(!budgeting)} className="min-h-11 rounded-xl px-3 py-2 text-sm text-stone-600">Budget</button>
+        {list.teamId && <button type="button" onClick={() => setVoting(!voting)} className="min-h-11 rounded-xl px-3 py-2 text-sm text-stone-600">Vote on stops</button>}
+        <button type="button" onClick={() => setTraveling(!traveling)} className="min-h-11 rounded-xl px-3 py-2 text-sm text-stone-600">Travel times</button>
+        {!confirming && <button type="button" disabled={busy} onClick={() => { setConfirming(true); setRenaming(false); }} className="sm:ml-auto inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-red-700 hover:bg-red-50 disabled:opacity-50" aria-label={`Delete ${title}`}><Trash2 size={15} aria-hidden="true" />{owner ? "Delete" : "Leave plan"}</button>}
       </div>
+      {budgeting && <BudgetPanel list={list} onSave={(budget) => onBudget(list.id, budget)} onClose={() => setBudgeting(false)} />}
+      {voting && <VotingPanel list={list} userId={userId} getToken={getToken} onClose={() => setVoting(false)} />}
+      {traveling && <TravelPanel list={list} onClose={() => setTraveling(false)} />}
+      {discovering && <NearbyDiscoveries list={list} onAdd={(draft) => onAdd(list.id, draft)} onClose={() => setDiscovering(false)} />}
       {adding && <CustomStopForm onSave={(draft) => onAdd(list.id, draft)} onClose={() => setAdding(false)} />}
-      {collaborating && <CollaborationPanel list={list} userId={userId} onCreate={() => onCreateTeam(list.id)} onInvite={() => onInvite(list.id)} onDisable={() => onDisableInvite(list.id)} onRemove={(memberId) => onRemoveMember(list.id, memberId)} onClose={() => setCollaborating(false)} />}
+      {collaborating && <CollaborationPanel list={list} userId={userId} getToken={getToken} onCreate={() => onCreateTeam(list.id)} onInvite={() => onInvite(list.id)} onDisable={() => onDisableInvite(list.id)} onRemove={(memberId) => onRemoveMember(list.id, memberId)} onClose={() => setCollaborating(false)} />}
       {sharing && <SharePanel list={list} onPublish={() => onPublish(list.id)} onRevoke={() => onRevoke(list.id)} onClose={() => setSharing(false)} />}
       {planning && <TripPlanner list={list} onSave={(trip, assignments) => onTrip(list.id, trip, assignments)} onClose={() => setPlanning(false)} />}
       {renaming && <form onSubmit={rename} className="m-5 rounded-2xl bg-amber-50 p-4">
@@ -135,7 +160,7 @@ function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, o
         </div>
       </form>}
       {confirming && <div className="m-5 rounded-2xl bg-red-50 p-4">
-        <p className="mb-3">{owner ? list.teamId ? "Delete this shared plan for everyone? This cannot be undone." : "Delete this saved list? This cannot be undone." : "Leave this shared plan? You will lose access unless you join again."}</p>
+        <p className="mb-3">{owner ? list.teamId ? "Move this shared plan to Recently deleted for everyone? Public and invite links will be disabled." : "Move this list to Recently deleted? You can restore it later. Public links will be disabled." : "Leave this shared plan? You will lose access unless you join again."}</p>
         <div className="flex gap-3">
           <button type="button" onClick={remove} disabled={busy} className="rounded-lg bg-red-700 text-white px-4 py-2 disabled:opacity-50">{busy ? "Working…" : owner ? "Delete list" : "Leave plan"}</button>
           <button type="button" onClick={() => setConfirming(false)} disabled={busy} className="rounded-lg border border-gray-300 px-4 py-2 disabled:opacity-50">Cancel</button>
@@ -177,9 +202,11 @@ export default function SavedBucketLists() {
     return () => { active = false; unsubscribe?.(); };
   }, [isLoaded, userId, getToken, attempt]);
 
-  const allLists = [...(result.userId === userId ? result.lists : []), ...(teams.userId === userId ? teams.lists : [])];
+  const allRecords = [...(result.userId === userId ? result.lists : []), ...(teams.userId === userId ? teams.lists : [])];
+  const allLists = allRecords.filter((list) => !list.deletedAt);
+  const trashed = allRecords.filter((list) => list.deletedAt && (!list.teamId || list.ownerId === userId));
   function findList(id) {
-    const list = allLists.find((entry) => entry.id === id);
+    const list = allRecords.find((entry) => entry.id === id);
     if (!list) throw new Error("This list is no longer available.");
     return list;
   }
@@ -187,12 +214,12 @@ export default function SavedBucketLists() {
   async function removeList(listId) {
     const list = findList(listId);
     if (list.teamId) {
-      if (list.ownerId === userId) await deleteCollaborativeList(userId, getToken, list);
+      if (list.ownerId === userId) { await trashList(userId, getToken, list); updateList(listId, (entry) => ({ ...entry, deletedAt: new Date().toISOString(), shareId: "", inviteId: "" })); return; }
       else await removeCollaborator(userId, getToken, list, userId);
       setTeams((current) => current.userId === userId ? { ...current, lists: current.lists.filter((entry) => entry.id !== listId) } : current);
     } else {
-      await deleteBucketList(userId, getToken, listId);
-      setResult((current) => current.userId === userId ? { ...current, lists: current.lists.filter((entry) => entry.id !== listId) } : current);
+      await trashList(userId, getToken, list);
+      updateList(listId, (entry) => ({ ...entry, deletedAt: new Date().toISOString(), shareId: "" }));
     }
   }
   function updateList(listId, update) {
@@ -261,18 +288,27 @@ export default function SavedBucketLists() {
   async function createTeam(listId) {
     await createCollaborativeList(userId, getToken, findList(listId));
   }
+  async function saveBudget(listId, budget) {
+    await updatePlan(userId, getToken, findList(listId), { budget });
+    updateList(listId, (list) => ({ ...list, budget }));
+  }
+  async function restore(listId) {
+    try { await restoreList(userId, getToken, findList(listId)); updateList(listId, (list) => ({ ...list, deletedAt: "" })); }
+    catch { setRecoveryError("Unable to restore this list. Please try again."); }
+  }
+  const [recoveryError, setRecoveryError] = useState("");
   const visibleLists = allLists.filter((list) =>
     (filter === "all" || (filter === "favorites" ? list.favorite : filter === "shared" ? list.teamId : progressStatus(list) === filter)) &&
     `${listTitle(list)} ${list.userInfo?.location || ""}`.toLowerCase().includes(query.trim().toLowerCase())
   ).sort((a, b) => Number(Boolean(b.favorite)) - Number(Boolean(a.favorite)) || dateMillis(b.timestamp) - dateMillis(a.timestamp));
   return (
-    <div className="min-h-screen bg-[#fffbf2] px-4 pb-16 pt-40 text-gray-900 sm:pt-32">
+    <div className="min-h-screen bg-[#fffbf2] px-4 pb-16 pt-24 text-gray-900 sm:pt-28">
       <Navbar />
       <main className="max-w-5xl mx-auto">
         <header className="mb-9 flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-amber-800">Your collection</p>
-            <h1 className="text-4xl font-bold tracking-tight text-stone-950 sm:text-5xl">Good plans. Ready when you are.</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-950 sm:text-5xl">Good plans. Ready when you are.</h1>
             <p className="mt-4 max-w-xl text-stone-500">Your saved lists, favorite discoveries, and next adventures—all in one place.</p>
           </div>
           {userId && <Link href="/generate" className="inline-flex items-center gap-2 rounded-2xl bg-amber-300 px-5 py-3 text-sm font-semibold text-amber-950 transition hover:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700"><Plus size={18} aria-hidden="true" />Create a list</Link>}
@@ -281,7 +317,7 @@ export default function SavedBucketLists() {
           <h2 className="text-sm font-semibold text-stone-600">Saved lists <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-900">{allLists.length}</span></h2>
           <label className="flex w-full items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2.5 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-100 sm:w-72"><Search size={17} className="text-stone-400" aria-hidden="true" /><input aria-label="Search saved lists" placeholder="Find a list…" value={query} onChange={(event) => setQuery(event.target.value)} className="min-w-0 flex-1 bg-transparent text-sm outline-none" /></label>
         </div>}
-        {userId && !loading && !result.error && allLists.length > 0 && <div className="mb-6 flex flex-wrap gap-2" aria-label="Filter lists by progress">{[["all", "All"], ["favorites", "Favorites"], ["shared", "Shared plans"], ["not-started", "Not started"], ["in-progress", "In progress"], ["completed", "Completed"]].map(([value, label]) => <button key={value} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)} className={`rounded-full px-4 py-2 text-sm font-medium transition ${filter === value ? "bg-amber-200 text-amber-950" : "border border-stone-200 bg-white text-stone-500 hover:bg-amber-50"}`}>{label}</button>)}</div>}
+        {userId && !loading && !result.error && allLists.length > 0 && <div className="mb-6 flex gap-2 overflow-x-auto pb-2 sm:flex-wrap" aria-label="Filter lists by progress">{[["all", "All"], ["favorites", "Favorites"], ["shared", "Shared plans"], ["not-started", "Not started"], ["in-progress", "In progress"], ["completed", "Completed"]].map(([value, label]) => <button key={value} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)} className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${filter === value ? "bg-amber-200 text-amber-950" : "border border-stone-200 bg-white text-stone-500 hover:bg-amber-50"}`}>{label}</button>)}</div>}
         {teams.userId === userId && teams.error && <div role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-700">{teams.error}<button type="button" onClick={() => setAttempt((value) => value + 1)} className="ml-3 underline">Retry</button></div>}
         {loading ? (
           <div role="status" className="rounded-3xl border border-stone-200 bg-white p-8 text-stone-500">Loading your collection…</div>
@@ -304,10 +340,11 @@ export default function SavedBucketLists() {
           <div className="space-y-5">
             {visibleLists.length === 0 && <div className="rounded-2xl border border-stone-200 bg-white p-6"><p className="text-stone-500">No lists match this search and filter.</p><button type="button" onClick={() => { setQuery(""); setFilter("all"); }} className="mt-3 text-sm font-semibold text-amber-800">Show all lists</button></div>}
             {visibleLists.map((list) => (
-              <SavedListCard key={`${userId}:${list.id}`} list={list} onDelete={removeList} onRename={renameList} onComplete={completeActivity} onNote={noteActivity} onTrip={planTrip} onPublish={publish} onRevoke={revoke} onFavorite={favoriteList} onStopFavorite={favoriteStop} onAdd={addStop} onReorder={reorder} onCreateTeam={createTeam} onInvite={invite} onDisableInvite={stopInvites} onRemoveMember={removeMember} userId={userId} />
+              <SavedListCard key={`${userId}:${list.id}`} list={list} onDelete={removeList} onRename={renameList} onComplete={completeActivity} onNote={noteActivity} onTrip={planTrip} onPublish={publish} onRevoke={revoke} onFavorite={favoriteList} onStopFavorite={favoriteStop} onAdd={addStop} onReorder={reorder} onCreateTeam={createTeam} onInvite={invite} onDisableInvite={stopInvites} onRemoveMember={removeMember} onBudget={saveBudget} userId={userId} getToken={getToken} />
             ))}
           </div>
         )}
+        {trashed.length > 0 && <details className="mt-8 rounded-2xl border border-stone-200 bg-white p-5"><summary className="cursor-pointer font-semibold">Recently deleted · {trashed.length}</summary><p className="mt-3 text-sm text-stone-500">Restore your lists here. Public and editor invite links stay disabled after restoring.</p><ul className="mt-3 space-y-3">{trashed.map((list) => <li key={list.id} className="flex flex-wrap items-center gap-3"><span className="min-w-0 flex-1 break-words text-sm">{listTitle(list)}</span><button onClick={() => restore(list.id)} className="min-h-11 rounded-xl bg-amber-200 px-4 py-2 text-sm font-semibold">Restore</button></li>)}</ul>{recoveryError && <p role="alert" className="mt-3 text-sm text-red-700">{recoveryError}</p>}</details>}
         {userId && <Link href="/guides" className="mt-8 flex flex-wrap items-center gap-4 rounded-2xl border border-amber-200/60 bg-amber-50 p-5 text-amber-950 transition hover:bg-amber-100"><Compass size={24} aria-hidden="true" /><span className="flex-1"><span className="block font-semibold">Looking for a little inspiration?</span><span className="text-sm text-amber-900/70">Explore ready-to-save guides for 50 U.S. cities.</span></span><span className="text-sm font-semibold">Browse city guides →</span></Link>}
       </main>
     </div>

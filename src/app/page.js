@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Box, AppBar, Toolbar, Typography, Grid, Button } from "@mui/material";
@@ -13,25 +12,8 @@ import Navbar from "../components/navbar.js";
 import AnimatedWord from "../components/animated.js";
 
 export default function LandingPage() {
-  const [mobileNoticeVisible, setMobileNoticeVisible] = useState(true);
-
   return (
     <Box>
-      {/* Note To Mobile Users*/}
-      {mobileNoticeVisible && (
-        <div className="block md:hidden bg-yellow-500 text-black text-center p-3 mt-16">
-          <p className="text-sm">
-            Note: Due to time constraint, the mobile experience of Bucket is not fully optimized right now.
-            For the best experience, please use a desktop. Thanks - Kelechi
-          </p>
-          <button
-            className="mt-1 text-xs underline"
-            onClick={() => setMobileNoticeVisible(false)}
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
       <Box
         sx={{
           display: "flex",
@@ -40,20 +22,20 @@ export default function LandingPage() {
           backgroundImage: "url(landingpage.png)",
           backgroundSize: "cover",
           fontFamily: "Inter",
-          padding: 0,
+          px: { xs: 3, sm: 4 },
           margin: 0,
         }}
       >
         <Navbar />
         {/* Start of Hero Section */}
-        <div className="flex flex-col items-center justify-center mb-10 mt-55 text-center">
+        <div className="flex flex-col items-center justify-center mb-8 mt-32 text-center sm:mt-44 lg:mt-55">
           <Typography
             component="div"
             sx={{
               fontFamily: "Poppins",
               fontWeight: 600,
-              fontSize: "70px",
-              lineHeight: "70px",
+              fontSize: { xs: "34px", sm: "48px", md: "70px" },
+              lineHeight: 1.15,
               color: "white",
               textAlign: "center",
             }}
@@ -96,13 +78,13 @@ export default function LandingPage() {
                 borderRadius: "10px",
                 px: "24px",
                 py: "12px",
-                color: "black",
-                backgroundColor: "white",
+                color: "var(--foreground)",
+                backgroundColor: "var(--surface)",
                 boxShadow: "0 0 0 transparent",
                 transition: "all 0.4s ease-in-out",
                 "&:hover": {
-                  backgroundColor: "white",
-                  color: "black",
+                  backgroundColor: "var(--surface)",
+                  color: "var(--foreground)",
                   boxShadow: "0 0 20px 5px rgba(255, 255, 255, 0.6)",
                   animation: "pulseGlow 1.5s ease-in-out infinite",
                   scale: "1.05",
@@ -129,40 +111,41 @@ export default function LandingPage() {
 
       <Box
         sx={{
-          backgroundColor: "white",
+          backgroundColor: "var(--surface)",
           padding: "1rem",
         }}
       >
         {/* Start of Hero Section 2*/}
-        <div className="flex flex-col items-center justify-center mt-15 mb-30 text-center">
+        <div className="flex flex-col items-center justify-center mt-12 mb-12 text-center sm:mt-15 sm:mb-20">
           {/* How It Works */}
           <Typography
             sx={{
               fontFamily: "Poppins",
               fontWeight: 600,
-              fontSize: "70px",
-              lineHeight: "70px",
-              color: "black",
+              fontSize: { xs: "34px", sm: "48px", md: "70px" },
+              lineHeight: 1.15,
+              color: "var(--foreground)",
             }}
           >
             How It Works
           </Typography>
         </div>
 
-        <div className="flex flex-row items-center justify-center text-center mb-10 space-x-10 space-x-30">
+        <div className="grid grid-cols-1 gap-10 text-center mb-10 sm:grid-cols-2 xl:grid-cols-4">
           {/* Step 1 */}
-          <div className="flex flex-col items-center mr-10">
+          <div className="flex min-w-0 flex-col items-center">
             <img
               src="/brain.png"
               alt="Brain Logo"
               width={350}
               height={250}
-              style={{ marginBottom: "8px", marginRight: "35px"}}
+              className="h-auto w-full max-w-[350px]"
+              style={{ marginBottom: "8px" }}
             />
             <Typography
               sx={{
                 fontFamily: "Inter",
-                color: "black",
+                color: "var(--foreground)",
                 fontSize: "20px",
                 fontWeight: 400,
                 textAlign: "center",
@@ -206,7 +189,7 @@ export default function LandingPage() {
             <Typography
               sx={{
                 fontFamily: "Inter",
-                color: "black",
+                color: "var(--foreground)",
                 fontSize: "20px",
                 textAlign: "center",
                 marginTop: "30px",
@@ -220,7 +203,7 @@ export default function LandingPage() {
 
           {/* Step 3 */}
           <div className="flex flex-col items-center">
-            <div className="relative w-[350px] h-[250px] mb-2">
+            <div className="relative w-full max-w-[350px] h-[250px] mb-2">
               <img
                 src="/sparkles.png"
                 alt="Sparkles Logo"
@@ -251,7 +234,7 @@ export default function LandingPage() {
             <Typography
               sx={{
                 fontFamily: "Inter",
-                color: "black",
+                color: "var(--foreground)",
                 fontSize: "20px",
                 textAlign: "center",
               }}
@@ -272,7 +255,7 @@ export default function LandingPage() {
             <Typography
               sx={{
                 fontFamily: "Inter",
-                color: "black",
+                color: "var(--foreground)",
                 fontSize: "20px",
                 textAlign: "center",
               }}
@@ -282,16 +265,16 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-center mt-45 mb-5 text-center">
+        <div className="flex flex-col items-center justify-center mt-16 mb-5 text-center sm:mt-32">
           {/* Dont take our word for it */}
           <Typography
             component="div"
             sx={{
               fontFamily: "Poppins",
               fontWeight: 600,
-              fontSize: "70px",
-              lineHeight: "70px",
-              color: "black",
+              fontSize: { xs: "34px", sm: "48px", md: "70px" },
+              lineHeight: 1.15,
+              color: "var(--foreground)",
             }}
           >
             Dont just take <span style={{ color: "#FF00DC" }}>our </span> word
@@ -299,14 +282,14 @@ export default function LandingPage() {
           </Typography>
         </div>
 
-        <div className="flex flex-col items-center justify-center mt-0 mb-20 text-center">
+        <div className="flex flex-col items-center justify-center mt-0 mb-10 text-center sm:mb-20">
           <Typography
             sx={{
               fontFamily: "Poppins",
               fontWeight: 600,
-              fontSize: "63px",
-              lineHeight: "70px",
-              color: "black",
+              fontSize: { xs: "28px", sm: "44px", md: "63px" },
+              lineHeight: 1.15,
+              color: "var(--foreground)",
             }}
           >
             Here&apos;s what one of our 300+ users think.
@@ -319,10 +302,10 @@ export default function LandingPage() {
             <Typography
               component="div"
               sx={{
-                color: "black",
+                color: "var(--foreground)",
                 fontFamily: "Inter",
                 fontStyle: "italic",
-                fontSize: "30px",
+                fontSize: { xs: "20px", sm: "26px", md: "30px" },
                 lineHeight: "1.6",
                 backgroundColor: "FF00DC"
               }}
@@ -375,7 +358,7 @@ export default function LandingPage() {
         <div className="flex flex-col items-center">
           {/* LEFT ITEM */}
           <div className="flex flex-row items-left mt-10 mb-10">
-            <img src="/ipad.png" alt="Bucket app preview on an iPad" width={750} height={550}></img>
+            <img src="/ipad.png" alt="Bucket app preview on an iPad" width={750} height={550} className="h-auto w-full max-w-[750px]"></img>
           </div>
         </div>
       </Box>
@@ -385,7 +368,7 @@ export default function LandingPage() {
       <Box
         sx={{
           backgroundColor: "black",
-          padding: "4rem",
+          padding: { xs: "2rem 1rem", sm: "3rem", md: "4rem" },
         }}
       >
         {/* Start of Hero Section 2*/}
@@ -395,8 +378,8 @@ export default function LandingPage() {
             sx={{
               fontFamily: "Poppins",
               fontWeight: 600,
-              fontSize: "50px",
-              lineHeight: "70px",
+              fontSize: { xs: "30px", sm: "40px", md: "50px" },
+              lineHeight: 1.15,
               color: "white",
             }}
           >
@@ -409,7 +392,7 @@ export default function LandingPage() {
             sx={{
               fontFamily: "Poppins",
               fontWeight: 600,
-              fontSize: "50px",
+              fontSize: { xs: "30px", sm: "40px", md: "50px" },
               lineHeight: "normal",
               color: "white",
             }}
@@ -485,13 +468,13 @@ export default function LandingPage() {
                     borderRadius: "10px",
                     px: "24px",
                     py: "12px",
-                    color: "black",
-                    backgroundColor: "white",
+                    color: "var(--foreground)",
+                    backgroundColor: "var(--surface)",
                     boxShadow: "0 0 0 transparent",
                     transition: "all 0.4s ease-in-out",
                     "&:hover": {
-                      backgroundColor: "white",
-                      color: "black",
+                      backgroundColor: "var(--surface)",
+                      color: "var(--foreground)",
                       boxShadow: "0 0 20px 5px rgba(255, 255, 255, 0.6)",
                       animation: "pulseGlow 1.5s ease-in-out infinite",
                       scale: "1.05",
@@ -563,7 +546,7 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-center text-gray-400 mt-5 space-x-4 text-sm font-medium">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-gray-400 mt-5 text-sm font-medium">
               <a
                 href="https://github.com/kelechi055/bucket"
                 target="_blank"

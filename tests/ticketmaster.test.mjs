@@ -4,11 +4,13 @@ import { eventSearch, normalizeEvent, eventStop } from "../src/lib/ticketmaster.
 
 const guide = { city: "Boston", state: "MA" };
 test("event search validates filters and uses venue-local trip boundaries", () => {
-  const params = new URLSearchParams({ category: "music", start: "2026-10-12", end: "2026-10-15" });
+  const params = new URLSearchParams({ keyword: "  jazz  ", category: "music", start: "2026-10-12", end: "2026-10-15" });
   const query = eventSearch(params, guide, new Date("2026-10-10T12:00:00Z"));
   assert.equal(query.get("localStartDateTime"), "2026-10-12T00:00:00,2026-10-15T23:59:59");
   assert.equal(query.get("classificationName"), "Music");
   assert.equal(query.get("stateCode"), "MA");
+  assert.equal(query.get("keyword"), "jazz");
+  assert.throws(() => eventSearch(new URLSearchParams({ keyword: "x".repeat(101) }), guide));
   assert.equal(query.has("apikey"), false);
   for (const input of [{ start: "2026-02-30" }, { start: "2026-10-15", end: "2026-10-12" }, { category: "bogus" }]) assert.throws(() => eventSearch(new URLSearchParams(input), guide));
   assert.throws(() => eventSearch(new URLSearchParams(), undefined));

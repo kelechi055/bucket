@@ -3,12 +3,15 @@ import { validDate } from "./list-planning.js";
 export const eventCategories = { all: "", music: "Music", sports: "Sports", theater: "Arts & Theatre", comedy: "Comedy" };
 
 export function eventSearch(params, guide, now = new Date()) {
+  const keyword = (params.get("keyword") || "").trim();
+  if (keyword.length > 100) throw new Error("Search must be 100 characters or less.");
   const category = params.get("category") || "all";
   const start = params.get("start") || "";
   const end = params.get("end") || "";
   if (!guide || !Object.hasOwn(eventCategories, category)) throw new Error("Choose a valid city and event type.");
   if ((start && !validDate(start)) || (end && !validDate(end)) || (start && end && start > end)) throw new Error("Choose a valid date range.");
   const query = new URLSearchParams({ city: guide.city, stateCode: guide.state, countryCode: "US", size: "20", sort: "date,asc", includeTBA: "no", includeTBD: "no" });
+  if (keyword) query.set("keyword", keyword);
   query.set("startDateTime", now.toISOString().replace(/\.\d{3}Z$/, "Z"));
   // Local dates keep evening events inside the requested trip dates across U.S. time zones.
   if (start || end) query.set("localStartDateTime", `${start || now.toISOString().slice(0, 10)}T00:00:00,${end || "2099-12-31"}T23:59:59`);
@@ -35,5 +38,5 @@ export function normalizeEvent(event) {
 
 export function eventStop(event) {
   const when = [event.date, event.time].filter(Boolean).join(" at ");
-  return { title: event.title, description: `${when || "Date to be announced"} · ${event.venue}. Check the ticket page for current details and availability.`, tags: ["Events", event.category], location: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([event.venue, event.address].filter(Boolean).join(" "))}`, website: event.website };
+  return { title: event.title, ...(event.date ? { eventDate: event.date } : {}), description: `${when || "Date to be announced"} · ${event.venue}. Check the ticket page for current details and availability.`, tags: ["Events", event.category], location: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([event.venue, event.address].filter(Boolean).join(" "))}`, website: event.website };
 }

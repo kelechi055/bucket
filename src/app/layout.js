@@ -1,3 +1,4 @@
+import ThemeProvider from "../components/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -22,8 +23,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-      <html lang="en" className="h-full">
+      <html lang="en" className="h-full" suppressHydrationWarning>
         <head>
+          <Script id="bucket-theme" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: `try { var theme = localStorage.getItem('bucket-theme') === 'dark' ? 'dark' : 'light'; document.documentElement.dataset.theme = theme; document.documentElement.style.colorScheme = theme; } catch (_) {}` }} />
           <link rel="icon" href="/favicon.ico" sizes="any" />
           <Script
             strategy="afterInteractive"
@@ -55,7 +57,7 @@ export default function RootLayout({ children }) {
             afterSignOutUrl="/"
           >
             <AppRouterCacheProvider>
-              {children}
+              <ThemeProvider><div className="app-theme">{children}</div></ThemeProvider>
               <Analytics />
             </AppRouterCacheProvider>
           </ClerkProvider>

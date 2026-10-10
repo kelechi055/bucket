@@ -57,3 +57,27 @@ Pin a list to keep it at the top of your collection; star individual stops and u
 **Collaborate → Create shared plan** makes a separate copy with live shared stops, dates, ordering, and progress. The original list remains private. The owner can create, replace, or disable editor invitations and remove collaborators. New members sign in at `/join/[inviteId]` and explicitly choose **Join shared plan**. Personal notes and favorites live in each member's own preference documents and are never readable by other members. Only the owner can publish a public copy, invite others, or delete the shared plan. Removing a member also disables the current invitation to prevent rejoining through the old link. Members can leave a plan themselves. A plan supports up to 20 members and 100 stops.
 
 Publish the latest `firestore.rules` to enable the new collections. Run `npm test` for planning logic and `npm run test:rules` for Firestore access tests (requires Java 21+). The rules tests require an isolated demo emulator and never connect to production data.
+
+## Calendar export and nearby discoveries
+
+Expand a saved list and use **Export calendar (.ics)**. Assign stops to days under **Plan trip** first. Ticketmaster events retain their event date; older saved events can use the date at the beginning of their event description. The export uses all-day entries, skips undated stops, and excludes private notes. Import the file into your calendar app; this is a file export, not an automatic calendar sync.
+
+Use **Nearby discoveries** in a saved list's actions to choose a reference stop, food or activities, and a distance. Suggestions come from the existing curated city guides, exclude stops already saved, and are ranked by straight-line distance using the existing authenticated geocoder. Addresses are place-name matches and should be checked before traveling. Add a result directly to the private list or shared plan. Destinations outside the curated cities, or lists that already contain every matching curated pick, can use the Google Maps search link. No additional API keys are needed.
+
+## Events, budgets, votes, recovery, and travel
+
+Ticketmaster event cards offer **Add to existing list** for both personal lists and shared plans. Lists in Recently deleted are excluded, and duplicate ticket URLs are rejected. Event dates remain available for calendar export.
+
+Saved-list actions include **Budget** (USD estimates and an optional cap), **Vote on stops** (shared plans only, one vote per current member per stop), and **Travel times**. Driving estimates use OSRM's public routing service and the existing place-name geocoder, so they require no new API key and exclude live traffic. Confirm the matched addresses; Google Maps links support walking, driving, and transit. Public demo services are appropriate for light usage; use dedicated providers before scaling.
+
+Deleting a list now moves it to **Recently deleted**, where its owner can restore it. Deleting a shared plan hides it for every member. Invite and public-share links are disabled when moving a list to trash and remain disabled after restoration. Leaving another person's shared plan still removes your access. A progress change also offers **Undo**.
+
+Publish the latest `firestore.rules` before using voting or budgets on shared plans. The rules let members read ballots, write only their own canonical ballot, and edit shared budgets; only owners can move plans to trash or restore them. Trashed plans cannot be edited by collaborators, voted on, joined through invitations, or read through public links. Private notes, favorites, budgets, and votes remain excluded from public copies.
+
+## Unified search and collaboration activity
+
+`/search` searches the 50 city guides and their curated restaurants/attractions, plus the signed-in user's active private and shared plans and stops. City and category filters narrow results. Live Ticketmaster keyword searches require a selected city and use the existing server-side key. Private lists are fetched only under the account's existing Firestore permissions.
+
+Shared-plan member names come from `/api/collaborators`. It verifies the Clerk user against the provided Firebase ID token, reads the requested plan with that identity's existing access rules, and returns only current members' names and profile image URLs. Emails and other account metadata are excluded.
+
+The activity feed uses `collaborativeLists/{teamId}/activity`. Entries contain only actor ID, action, and server timestamp; members can read them and write under their own identity, with no updates/deletes permitted. Changes and entries commit atomically. It is a planning feed, not a security audit log. The feed shows the most recent 30 entries and does not backfill earlier changes. The tested activity rules were deployed to `sunnylist-1f5a2` on October 10, 2026, and `activityEnabled` in `src/lib/collaboration-activity.js` is enabled.

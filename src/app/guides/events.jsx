@@ -1,5 +1,6 @@
 "use client";
 
+import EventListPicker from "./event-list-picker";
 import { useState } from "react";
 import { SignInButton } from "@clerk/nextjs";
 import Link from "next/link";
@@ -7,6 +8,7 @@ import { eventCategories, eventStop } from "../../lib/ticketmaster";
 import { saveBucketList } from "../../lib/saved-lists";
 
 export default function CityEvents({ guide, userId, isLoaded, getToken }) {
+  const [picker, setPicker] = useState("");
   const [category, setCategory] = useState("all");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
@@ -45,9 +47,9 @@ export default function CityEvents({ guide, userId, isLoaded, getToken }) {
     <h3 className="text-xl font-bold">Make room for something live</h3>
     <p className="mt-1 text-sm text-gray-600">Find upcoming events in {guide.city}. Dates and times are local to the venue.</p>
     <form onSubmit={search} className="mt-5 grid gap-3 rounded-2xl bg-amber-50 p-4 sm:grid-cols-3">
-      <label className="text-xs font-semibold">Event type<select value={category} onChange={(event) => setCategory(event.target.value)} className={`${inputClass} mt-1`}>{Object.entries(eventCategories).map(([id, label]) => <option key={id} value={id}>{label || "All events"}</option>)}</select></label>
-      <label className="text-xs font-semibold">From<input type="date" value={start} onChange={(event) => setStart(event.target.value)} className={`${inputClass} mt-1`} /></label>
-      <label className="text-xs font-semibold">Through<input type="date" min={start || undefined} value={end} onChange={(event) => setEnd(event.target.value)} className={`${inputClass} mt-1`} /></label>
+      <label className="min-w-0 text-xs font-semibold">Event type<select value={category} onChange={(event) => setCategory(event.target.value)} className={`${inputClass} mt-1`}>{Object.entries(eventCategories).map(([id, label]) => <option key={id} value={id}>{label || "All events"}</option>)}</select></label>
+      <label className="min-w-0 text-xs font-semibold">From<input type="date" value={start} onChange={(event) => setStart(event.target.value)} className={`${inputClass} mt-1`} /></label>
+      <label className="min-w-0 text-xs font-semibold">Through<input type="date" min={start || undefined} value={end} onChange={(event) => setEnd(event.target.value)} className={`${inputClass} mt-1`} /></label>
       <button disabled={busy} className={`${buttonClass} sm:col-span-3`}>{busy ? "Finding events…" : "Find events"}</button>
     </form>
     {error && <p role="alert" className="mt-4 text-sm text-amber-900">{error}</p>}
@@ -57,15 +59,17 @@ export default function CityEvents({ guide, userId, isLoaded, getToken }) {
       const isSaved = saved[`${userId}:${event.id}`];
       return <li key={event.id} className="rounded-2xl border border-gray-200 p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">{event.category} · {event.date || "Date to be announced"}{event.time && ` · ${event.time.slice(0, 5)}`}</p>
-        <h4 className="mt-2 text-lg font-bold">{event.title}</h4>
+        <h4 className="mt-2 break-words text-lg font-bold">{event.title}</h4>
         <p className="mt-2 text-sm text-gray-600">{event.venue}</p>
         {event.address && <p className="mt-1 text-xs text-gray-500">{event.address}</p>}
         {["postponed", "rescheduled", "offsale"].includes(event.status) && <p className="mt-2 text-sm font-semibold text-amber-900">{event.status === "offsale" ? "Currently off sale" : event.status === "postponed" ? "Postponed — check ticket details" : "Rescheduled — check ticket details"}</p>}
-        <div className="mt-4 flex flex-wrap items-center gap-4">
+        <div className="mt-4 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
           {event.website && <a href={event.website} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-amber-800 underline">Tickets & details ↗</a>}
           {!isLoaded ? <button disabled className={buttonClass}>Loading…</button> : userId ? <button disabled={!!saving || isSaved} onClick={() => save(event)} className={buttonClass}>{saving === event.id ? "Saving…" : isSaved ? "Saved" : "Save event as a list"}</button> : <SignInButton mode="modal"><button className={buttonClass}>Sign in to save</button></SignInButton>}
+          {userId && <button type="button" onClick={() => setPicker(picker === event.id ? "" : event.id)} className="min-h-11 rounded-xl border border-stone-200 px-4 py-2 text-sm">Add to existing list</button>}
           {isSaved && <Link href="/save" className="text-sm underline">View saved lists →</Link>}
         </div>
+        {picker === event.id && userId && <EventListPicker key={userId} event={event} userId={userId} getToken={getToken} onClose={() => setPicker("")} />}
       </li>;
     })}</ul>
     <p className="mt-5 text-xs text-gray-500">Events provided by Ticketmaster. Showing up to 20 upcoming matches. Availability can change; confirm details before booking.</p>

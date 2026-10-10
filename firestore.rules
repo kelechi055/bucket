@@ -12,7 +12,7 @@ service cloud.firestore {
       function member() { return signedIn() && request.auth.uid in resource.data.memberIds; }
       function owner() { return signedIn() && resource.data.ownerId == request.auth.uid; }
       function validPlan() {
-        return request.resource.data.keys().hasOnly(['ownerId', 'memberIds', 'title', 'bucketItems', 'trip', 'scheduledItems', 'completedItems', 'stopOrder', 'destination', 'timestamp', 'updatedAt', 'inviteId', 'joinToken', 'shareId'])
+        return request.resource.data.keys().hasOnly(['ownerId', 'memberIds', 'title', 'bucketItems', 'trip', 'scheduledItems', 'completedItems', 'stopOrder', 'destination', 'timestamp', 'updatedAt', 'inviteId', 'joinToken', 'shareId', 'budget', 'deletedAt'])
           && request.resource.data.title is string
           && request.resource.data.bucketItems is list
           && request.resource.data.bucketItems.size() <= 100
@@ -23,12 +23,14 @@ service cloud.firestore {
           && request.resource.data.completedItems is map && request.resource.data.stopOrder is list
           && request.resource.data.stopOrder.size() == request.resource.data.bucketItems.size()
           && request.resource.data.stopOrder.toSet().size() == request.resource.data.stopOrder.size()
+          && request.resource.data.get('budget', {}) is map
+          && request.resource.data.get('deletedAt', '') is string
           && request.resource.data.destination is string
           && request.resource.data.ownerId in request.resource.data.memberIds;
       }
       function joining() {
         let token = request.resource.data.get('joinToken', '');
-        return signedIn() && token != '' && resource.data.inviteId == token
+        return signedIn() && resource.data.get('deletedAt', '') == '' && token != '' && resource.data.inviteId == token
           && get(/databases/$(database)/documents/listInvites/$(token)).data.teamId == teamId
           && get(/databases/$(database)/documents/listInvites/$(token)).data.ownerId == resource.data.ownerId
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberIds', 'joinToken'])
@@ -47,13 +49,40 @@ service cloud.firestore {
         && request.resource.data.inviteId == '' && request.resource.data.shareId == '';
       allow update: if validPlan() && request.resource.data.ownerId == resource.data.ownerId && (
         owner() || leaving() || joining() ||
-        (member() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'bucketItems', 'trip', 'scheduledItems', 'completedItems', 'stopOrder', 'updatedAt']))
+        (member() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'bucketItems', 'trip', 'scheduledItems', 'completedItems', 'stopOrder', 'updatedAt', 'budget']) && resource.data.get('deletedAt', '') == '')
       );
       allow delete: if owner();
+      match /activity/{activityId} {
+        function team() { return /databases/$(database)/documents/collaborativeLists/$(teamId); }
+        function currentMember() { return signedIn() && request.auth.uid in get(team()).data.memberIds; }
+        allow read: if currentMember();
+        allow create: if signedIn()
+          && (request.auth.uid in getAfter(team()).data.memberIds || currentMember())
+          && request.resource.data.keys().hasOnly(['actorId', 'action', 'createdAt'])
+          && request.resource.data.actorId == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.action in ['created', 'joined', 'renamed', 'stops', 'reordered', 'progress', 'dates', 'budget', 'invited', 'invitation', 'members', 'restored', 'deleted', 'voted', 'shared'];
+        allow update, delete: if false;
+      }
+      match /votes/{voteId} {
+        function currentMember() {
+          return signedIn() && request.auth.uid in get(/databases/$(database)/documents/collaborativeLists/$(teamId)).data.memberIds;
+        }
+        allow read: if currentMember();
+        allow create, update: if currentMember()
+          && get(/databases/$(database)/documents/collaborativeLists/$(teamId)).data.get('deletedAt', '') == ''
+          && request.resource.data.keys().hasOnly(['userId', 'stopIndex', 'voted'])
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.stopIndex is int && request.resource.data.stopIndex >= 0
+          && request.resource.data.stopIndex < get(/databases/$(database)/documents/collaborativeLists/$(teamId)).data.bucketItems.size()
+          && request.resource.data.voted is bool
+          && voteId == request.auth.uid + '_' + string(request.resource.data.stopIndex);
+        allow delete: if currentMember() && resource.data.userId == request.auth.uid;
+      }
     }
     match /listInvites/{inviteId} {
       function team(data) { return /databases/$(database)/documents/collaborativeLists/$(data.teamId); }
-      allow get: if signedIn() && get(team(resource.data)).data.inviteId == inviteId;
+      allow get: if signedIn() && get(team(resource.data)).data.inviteId == inviteId && get(team(resource.data)).data.get('deletedAt', '') == '';
       allow list: if false;
       allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.keys().hasOnly(['teamId', 'ownerId', 'title'])
@@ -68,7 +97,7 @@ service cloud.firestore {
           ? /databases/$(database)/documents/collaborativeLists/$(data.sourceListId)
           : /databases/$(database)/documents/users/$(data.ownerId)/savedBucketLists/$(data.sourceListId);
       }
-      allow get: if exists(source(resource.data)) && get(source(resource.data)).data.shareId == shareId;
+      allow get: if exists(source(resource.data)) && get(source(resource.data)).data.shareId == shareId && get(source(resource.data)).data.get('deletedAt', '') == '';
       allow list: if false;
       function validPublication() {
         return signedIn() && request.resource.data.ownerId == request.auth.uid

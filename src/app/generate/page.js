@@ -9,8 +9,46 @@ import Link from "next/link";
 import { saveBucketList } from "../../lib/saved-lists";
 import React, { useState, useRef } from "react";
 import "@fontsource/fredoka";
-import { FaEdit } from "react-icons/fa";
+import { Check, ChevronDown } from "lucide-react";
 import AddBtn from "../../components/add_input";
+
+const fieldOrder = ["name", "location", "interests", "budget", "solo_or_social", "transportation", "travel_distance", "availability", "limitations", "categories"];
+const choices = {
+  budget: ["Free", "Under $25", "$25–$50", "$50–$100", "$100–$250", "$250+", "No preference"],
+  solo_or_social: ["Solo", "With friends", "Date / couple", "Family", "Either solo or social"],
+  transportation: ["Walking", "Bicycle", "Public transit", "Car", "Rideshare", "No preference"],
+  travel_distance: ["Within 1 mile", "Within 5 miles", "Within 10 miles", "Within 25 miles", "Within 50 miles", "Open to a day trip"],
+  availability: ["Weekday mornings", "Weekday afternoons", "Weekday evenings", "Weekends", "Anytime"],
+  interests: ["Food & cafés", "Live music", "Hiking", "Museums", "Sports", "Nightlife"],
+  categories: ["Outdoors", "Food", "Art & culture", "Entertainment", "Wellness", "Shopping"],
+};
+
+function PreferenceField({ field, value, onChange }) {
+  const [customMode, setCustomMode] = useState(false);
+  const [selected, setSelected] = useState([]);
+  const [custom, setCustom] = useState("");
+  const options = choices[field.name];
+  const multiple = field.name === "interests" || field.name === "categories";
+  const control = "preference-control w-full rounded-xl border px-4 py-3 text-base font-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600";
+  function update(next) { onChange({ target: { name: field.name, value: next } }); }
+  function updateMultiple(nextSelected, nextCustom) { update([...nextSelected, nextCustom.trim()].filter(Boolean).join(", ")); }
+  const label = "preference-label mb-2 block text-sm font-medium";
+  if (multiple) return <fieldset className="preference-group min-w-0 border-y py-5 sm:col-span-2">
+    <legend className="preference-label px-1 text-sm font-medium">{field.label}</legend>
+    <p className="theme-muted mb-3 text-xs">Pick as many as you like.</p>
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{options.map((option) => <label key={option} className={`preference-choice relative flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition focus-within:ring-2 focus-within:ring-amber-500 ${selected.includes(option) ? "is-selected" : ""}`}>
+      <input type="checkbox" checked={selected.includes(option)} onChange={(event) => { const next = event.target.checked ? [...selected, option] : selected.filter((entry) => entry !== option); setSelected(next); updateMultiple(next, custom); }} className="sr-only" />
+      <span aria-hidden="true" className="preference-check flex h-4 w-4 shrink-0 items-center justify-center rounded border">{selected.includes(option) && <Check size={12} strokeWidth={3} />}</span><span>{option}</span>
+    </label>)}</div>
+    <label htmlFor={`${field.name}-custom`} className="theme-muted mt-3 block text-xs">Something else? <span className="opacity-80">Optional</span></label><input id={`${field.name}-custom`} value={custom} maxLength={500} onChange={(event) => { setCustom(event.target.value); updateMultiple(selected, event.target.value); }} placeholder="Add your own interests…" className={`${control} mt-1.5`} />
+  </fieldset>;
+  return <div className="min-w-0"><label htmlFor={field.name} className={label}><span aria-hidden="true" className={`mr-2 inline-block h-1.5 w-1.5 rounded-full ${field.border.replace("border-", "bg-")}`} />{field.label}</label>
+    {options ? <><div className="relative"><select id={field.name} name={field.name} value={customMode ? "__custom" : value} onChange={(event) => { const isCustom = event.target.value === "__custom"; setCustomMode(isCustom); update(isCustom ? "" : event.target.value); }} className={`${control} appearance-none pr-10 ${!value && !customMode ? "is-placeholder" : ""}`}>
+      <option value="">Choose an option</option>{options.map((option) => <option key={option} value={option}>{option}</option>)}<option value="__custom">Custom…</option>
+    </select><ChevronDown size={17} aria-hidden="true" className="theme-muted pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2" /></div>{customMode && <><label htmlFor={`${field.name}-custom`} className="theme-muted mt-3 block text-xs">Your {field.label.toLowerCase()}</label><input id={`${field.name}-custom`} name={field.name} value={value} onChange={onChange} maxLength={500} placeholder={field.placeholder} className={`${control} mt-1.5`} /></>}</> : <input id={field.name} type="text" name={field.name} value={value} onChange={onChange} maxLength={500} placeholder={field.placeholder} className={control} />}
+  </div>;
+
+}
 
 function parseBucketItems(rawString) {
   const cleaned = rawString.replace(/```json\s*|\s*```/g, "");
@@ -122,26 +160,31 @@ export default function GenerateBucketPage() {
   if (loading) return <SummerLoader />;
 
   return (
+    <>
+    <Navbar />
     <Box
       sx={{
         backgroundImage: "url(/generate-bg2.png)",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        minHeight: "110vh",
-        py: 12,
+        minHeight: "100svh",
+        pt: { xs: "calc(96px + env(safe-area-inset-top))", sm: "calc(112px + env(safe-area-inset-top))" },
+        pb: 8,
+        px: { xs: 2, sm: 3 },
       }}
     >
       <div className="min-h-screen">
-        <div className="font-fredoka max-w-2xl mx-auto p-6 mb-32 bg-white/70 rounded-lg shadow-md">
-          <Navbar />
+        <div className="preference-card font-fredoka max-w-2xl mx-auto p-5 sm:p-8 mb-8 rounded-3xl border shadow-lg">
           <div className="mt-0">
-            <h1 className="text-5xl font-bold text-center text-black mb-6">
+            <h1 className="preference-label text-3xl sm:text-4xl font-semibold text-center mb-2">
               Generate Your Bucket List
             </h1>
 
+            <p className="theme-muted mb-7 text-center text-sm">Choose what you love. We’ll help plan the rest.</p>
+
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
                 {[
                   {
                     label: "Name",
@@ -203,26 +246,14 @@ export default function GenerateBucketPage() {
                     placeholder: "None, Knee issues, etc.",
                     border: "border-rose-400",
                   },
-                ].map((field) => (
-                  <div key={field.name}>
-                    <label className="block text-lg font-semibold text-black mb-2">
-                      {field.label}
-                    </label>
-                    <input
-                      type="text"
-                      name={field.name}
-                      value={userInfo[field.name]}
-                      onChange={handleInputChange}
-                      placeholder={field.placeholder}
-                      className={`w-full px-4 py-3 bg-gray-100 text-black font-bold text-lg rounded-full placeholder-gray-400 focus:outline-none border ${field.border}`}
-                    />
-                  </div>
+                ].sort((a, b) => fieldOrder.indexOf(a.name) - fieldOrder.indexOf(b.name)).map((field) => (
+                  <PreferenceField key={field.name} field={field} value={userInfo[field.name]} onChange={handleInputChange} />
                 ))}
               </div>
 
               <button
                 type="submit"
-                className="w-full p-3 bg-yellow-500 text-white text-xl rounded-md hover:bg-yellow-600"
+                className="w-full min-h-12 p-3 bg-amber-300 text-amber-950 text-base font-semibold rounded-xl hover:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
               >
                 Generate Bucket List
               </button>
@@ -254,7 +285,7 @@ export default function GenerateBucketPage() {
               {error && <p className="mt-4 text-red-500">{error}</p>}
             </form>
 
-            <div id="bucket-anchor" ref={anchorRef}>
+            <div id="bucket-anchor" ref={anchorRef} className="scroll-mt-24">
               {parsedList.map((item, index) => (
                 <BucketItem
                   key={index}
@@ -282,5 +313,6 @@ export default function GenerateBucketPage() {
         </div>
       </div>
     </Box>
+    </>
   );
 }

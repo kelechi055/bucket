@@ -74,3 +74,99 @@ body {
   padding: 0;
 }
 .leaflet-tooltip.bucket-map-number::before { display: none; }
+
+/* Comfortable touch controls and readable forms on narrow screens. */
+@media (max-width: 639px) {
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+    min-width: 0;
+    max-width: 100%;
+    font-size: 16px;
+  }
+  button, a[role="button"], .list-actions > button {
+    min-height: 44px;
+  }
+  .list-actions > button {
+    justify-content: center;
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Shared theme tokens keep the warm accent in both appearances. */
+:root {
+  color-scheme: light;
+  --background: #faf8f3;
+  --foreground: #24221d;
+  --surface: #ffffff;
+  --surface-soft: #f7f5ef;
+  --surface-border: #e7e3da;
+  --muted: #69665e;
+  --accent-text: #92400e;
+  --accent-soft: #fff3cd;
+  --accent-border: #f0d997;
+  --input-bg: #fbfaf7;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #171918;
+  --foreground: #f2f0e9;
+  --surface: #222523;
+  --surface-soft: #2b2e2b;
+  --surface-border: #3d413b;
+  --muted: #b9bcb4;
+  --accent-text: #f5cf79;
+  --accent-soft: #363022;
+  --accent-border: #625334;
+  --input-bg: #1d201e;
+}
+body { background-color: var(--background); }
+.theme-card { background: var(--surface); border-color: var(--surface-border); color: var(--foreground); }
+.theme-muted { color: var(--muted); }
+.theme-accent { color: var(--accent-text); }
+.generate-page {
+  color: var(--foreground);
+  background: radial-gradient(ellipse at 85% 0%, var(--accent-soft), transparent 45%), var(--background);
+}
+.generate-input { background: var(--input-bg); border-color: var(--surface-border); color: var(--foreground); }
+.generate-input::placeholder { color: var(--muted); opacity: .8; }
+.generate-details { border-color: var(--surface-border); background: var(--surface-soft); }
+.generate-details[open] > summary svg { transform: rotate(180deg); }
+.generate-skeleton { background: var(--surface-soft); }
+
+/* Theme the existing guide, search, and saved-plan utility surfaces too. */
+:root[data-theme="dark"] .app-theme :is(.bg-white, .bg-white\/70, .bg-white\/90) { background-color: var(--surface); }
+:root[data-theme="dark"] .app-theme :is(.bg-gray-50, .bg-gray-100, .bg-stone-50, .bg-stone-100) { background-color: var(--surface-soft); }
+:root[data-theme="dark"] .app-theme :is(.bg-amber-50, .bg-amber-50\/60, .bg-amber-100, .bg-orange-50) { background-color: var(--accent-soft); }
+:root[data-theme="dark"] .app-theme :is(.bg-\[\#faf8f3\], .bg-\[\#fffbf2\]) { background-color: var(--background); }
+:root[data-theme="dark"] .app-theme :is(.text-black, .text-gray-950, .text-gray-900, .text-gray-800, .text-stone-950, .text-stone-900) { color: var(--foreground); }
+:root[data-theme="dark"] .app-theme :is(.text-gray-700, .text-gray-600, .text-gray-500, .text-gray-400, .text-stone-700, .text-stone-600, .text-stone-500, .text-stone-400) { color: var(--muted); }
+:root[data-theme="dark"] .app-theme :is(.text-amber-800, .text-amber-900) { color: var(--accent-text); }
+:root[data-theme="dark"] .app-theme :is(.border-gray-100, .border-gray-200, .border-stone-100, .border-stone-200) { border-color: var(--surface-border); }
+:root[data-theme="dark"] .app-theme :is(.border-amber-100, .border-amber-200) { border-color: var(--accent-border); }
+:root[data-theme="dark"] .app-theme :is(.from-amber-100, .via-orange-50, .to-white) { --tw-gradient-from: var(--accent-soft); --tw-gradient-via: var(--surface); --tw-gradient-to: var(--surface); }
+:root[data-theme="dark"] .app-theme .bg-red-50 { background-color: #432626; }
+:root[data-theme="dark"] .app-theme :is(.text-red-700, .text-red-800) { color: #fca5a5; }
+:root[data-theme="dark"] .app-theme :is(.text-green-700, .text-green-800) { color: #86efac; }
+
+.generate-page.generate-simple { background: var(--background); }
+
+/* Original Generate backdrop, with quieter, consistent preference controls. */
+.preference-card { background: color-mix(in srgb, var(--surface) 94%, transparent); border-color: var(--surface-border); backdrop-filter: blur(12px); }
+.preference-label { color: var(--foreground); }
+.preference-control { min-height: 48px; border-color: var(--surface-border); background: var(--input-bg); color: var(--foreground); }
+.preference-control::placeholder, .preference-control.is-placeholder { color: var(--muted); }
+.preference-control option { color: var(--foreground); background: var(--surface); }
+.preference-group { border-color: var(--surface-border); }
+.preference-choice { background: var(--input-bg); border-color: var(--surface-border); color: var(--foreground); }
+.preference-choice:hover { border-color: var(--accent-border); }
+.preference-choice.is-selected { background: var(--accent-soft); border-color: var(--accent-text); color: var(--accent-text); }
+.preference-check { border-color: var(--surface-border); background: var(--surface); }
+.preference-choice.is-selected .preference-check { background: #fcd34d; border-color: #d97706; color: #451a03; }

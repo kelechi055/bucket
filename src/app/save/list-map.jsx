@@ -47,7 +47,7 @@ export default function ListMap({ list }) {
   const current = result.signature === signature ? result : { points: [], missing: [], loading: true };
   return <section className="mb-5 overflow-hidden rounded-2xl border border-stone-200 bg-white">
     <div className="p-4"><h3 className="font-bold">Your stops on a map</h3><p className="mt-1 text-xs text-stone-500">Pins use place-name matches. Check the matched address before you travel.</p>{current.loading && <p role="status" className="mt-2 text-sm text-amber-800">Locating stops… {current.points.length + current.missing.length} / {entries.length}</p>}</div>
-    <div className="relative z-0 h-96"><MapContainer center={[39.5, -98.35]} zoom={4} scrollWheelZoom={false} style={{ height: "100%", width: "100%" }}>
+    <div className="relative z-0 h-72 sm:h-96"><MapContainer center={[39.5, -98.35]} zoom={4} scrollWheelZoom={false} style={{ height: "100%", width: "100%" }}>
       <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
       <FitStops points={current.points} />
       {current.points.map((point) => <CircleMarker key={point.index} center={[point.lat, point.lng]} radius={13} pathOptions={{ color: "#92400e", fillColor: "#fbbf24", fillOpacity: 1 }}><Tooltip permanent direction="center" className="bucket-map-number">{point.position}</Tooltip><Popup><strong>{point.title}</strong><p>Matched to: {point.label}</p>{safeWebUrl(point.location) && <a href={point.location} target="_blank" rel="noopener noreferrer">Check in Google Maps ↗</a>}</Popup></CircleMarker>)}

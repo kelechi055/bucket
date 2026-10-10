@@ -29,7 +29,7 @@ export async function GET(request) {
   catch (error) { return Response.json({ error: error.message }, { status: 400 }); }
   const key = process.env.TICKETMASTER_API_KEY?.trim();
   if (!key) return Response.json({ error: "Event discovery is coming soon." }, { status: 503 });
-  const cacheKey = JSON.stringify([params.get("city"), params.get("category") || "all", params.get("start") || "", params.get("end") || ""]);
+  const cacheKey = JSON.stringify([params.get("city"), params.get("category") || "all", params.get("start") || "", params.get("end") || "", (params.get("keyword") || "").trim()]);
   let result = cache.get(cacheKey);
   if (!result || result.expires < Date.now()) {
     if (!pending.has(cacheKey)) pending.set(cacheKey, discover(query, key));
