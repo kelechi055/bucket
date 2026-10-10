@@ -1,40 +1,32 @@
-import firebase from 'firebase/app';
-import "firebase/firestore";
-import "firebase/auth";
+"use client";
 
-
-import {useUser} from "../clerk/clerk-react";
+import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
+import { loadBucketLists } from "../../lib/saved-lists";
 
-export const useDetails = () => {
-  const clerkUser = useUser();
-  const [bucketItems, setBucketItems] = useState([]);
-  const[error, setError] = useState(null);
+export function useDetails() {
+  const { userId, isLoaded, getToken } = useAuth();
+  const [result, setResult] = useState({ userId: null, bucketItems: [], error: null });
 
-      const db = firebase.firestore();
+  useEffect(() => {
+    if (!isLoaded || !userId) return;
+    let active = true;
+    loadBucketLists(userId, getToken).then(
+      (lists) => {
+        if (active) setResult({
+          userId,
+          bucketItems: lists.flatMap((list) => Array.isArray(list.bucketItems) ? list.bucketItems : []),
+          error: null,
+        });
+      },
+      (error) => { if (active) setResult({ userId, bucketItems: [], error }); }
+    );
+    return () => { active = false; };
+  }, [isLoaded, userId, getToken]);
 
-      useEffect(() => {
-        const retrieveDetails = async function(){
-            try{
-                const firebaseToken = await clerkUser.getToken("firebase");
-                await firebase.auth().signInWithCustomToken(firebaseToken);
-            
-            const tempDetails = [];
-            const example = await db.collection("BucketList").get();
-            examplee.forEach((detail) => {
-                tempDetails.push(detail.data());
-    })
-    setBucketItems(tempDetails);
-} catch(err){
-    setError(err)
+  const current = isLoaded && userId && result.userId === userId;
+  return {
+    bucketItems: current ? result.bucketItems : [],
+    error: current ? result.error : null,
+  };
 }
-        }
-        retrieveDetails();
-    }, []);
-    return { bucketItems, error,
-        
-     };
-      
-
-
-    }

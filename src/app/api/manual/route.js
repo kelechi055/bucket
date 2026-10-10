@@ -57,7 +57,7 @@ Description: ${description}
 `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash", // Use the correct model version
+      model: process.env.GEMINI_MODEL || "gemini-3.8-flash",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
     });
 
@@ -70,9 +70,11 @@ Description: ${description}
       );
     }
 
-    const text = response.candidates[0].content.parts[0].text;
-    const tFormatted = parseBucketItems(text);
-    console.log(tFormatted);
+    const activity = parseBucketItems(response.text);
+    const tFormatted = Array.isArray(activity) ? activity : [activity];
+    if (!tFormatted.length || tFormatted.some((item) => !item?.title)) {
+      return NextResponse.json({ error: "Unable to format this activity. Please try again." }, { status: 502 });
+    }
 
     return NextResponse.json({ tFormatted }); // now `activity` is an object with your desired fields
   } catch (error) {

@@ -4,9 +4,9 @@ import BucketItem from "../../components/bucket_item";
 import Navbar from "../../components/navbar";
 import { Box } from "@mui/material";
 import SummerLoader from "../../components/summerLoader";
-import { collection, addDoc } from "firebase/firestore";
-import { auth } from "/firebase";
-import { db } from "/firebase";
+import { SignInButton, useAuth } from "@clerk/nextjs";
+import Link from "next/link";
+import { saveBucketList } from "../../lib/saved-lists";
 import React, { useState, useRef } from "react";
 import "@fontsource/fredoka";
 import { FaEdit } from "react-icons/fa";
@@ -37,6 +37,9 @@ export default function GenerateBucketPage() {
     extra_details: "",
   });
 
+  const { userId, getToken, isLoaded } = useAuth();
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [parsedList, setParsedList] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -44,10 +47,12 @@ export default function GenerateBucketPage() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    setSaved(false);
     setUserInfo((prev) => ({ ...prev, [name]: value }));
   };
 
   const removeElement = (indexToRemove) => {
+    setSaved(false);
     setParsedList((prevList) =>
       prevList.filter((_, index) => index !== indexToRemove)
     );
@@ -58,14 +63,7 @@ export default function GenerateBucketPage() {
     setError(null);
     setLoading(true);
 
-    const user = auth.currentUser;
-
-    /*if (!user) {
-      console.log("User not authenticated.");
-      setError("You need to sign in first.");
-      setLoading(false);
-      return;
-    }*/
+    setSaved(false);
 
     try {
       // Call the API to generate the bucket list
@@ -90,15 +88,6 @@ export default function GenerateBucketPage() {
           }
         }, 100);
 
-        // Save to Firestore after generating the bucket list
-        await addDoc(
-          collection(db, `users/${user.uid}/savedBucketLists`), // Path: /users/{userId}/savedBucketLists
-          {
-            userInfo,
-            bucketItems,
-            timestamp: new Date().toISOString(),
-          }
-        );
       } else {
         setError(
           data.error || "An error occurred while generating the bucket list."
@@ -113,27 +102,20 @@ export default function GenerateBucketPage() {
   };
 
   const handleSave = async () => {
-    setLoading(true);
-    const user = auth.currentUser;
-    if (user && parsedList.length > 0) {
-      try {
-        // Save to Firestore under the path /users/{userId}/savedBucketLists
-        await addDoc(
-          collection(db, `users/${user.uid}/savedBucketLists`), // Path: /users/{userId}/savedBucketLists
-          {
-            userInfo,
-            bucketItems: parsedList,
-            timestamp: new Date().toISOString(),
-          }
-        );
-        setLoading(false); // Stop loading once the save is successful
-      } catch {
-        setError("Error saving bucket list.");
-        setLoading(false); // Stop loading if there is an error
-      }
-    } else {
-      setError("No bucket items to save or user not authenticated.");
-      setLoading(false); // Stop loading if there is no user or no items
+    setError(null);
+    if (!userId || !parsedList.length) {
+      setError("Sign in and generate a list before saving.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await saveBucketList(userId, getToken, userInfo, parsedList);
+      setSaved(true);
+    } catch (err) {
+      console.error("Error saving bucket list:", err);
+      setError(err.message || "Unable to save your list. Please try again.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -245,20 +227,29 @@ export default function GenerateBucketPage() {
                 Generate Bucket List
               </button>
 
-              <button
-                type="button"
-                className={
-                  parsedList.length != 0
-                    ? "w-full p-3 bg-green-500 text-white text-xl rounded-md hover:bg-green-600 mt-4"
-                    : "hidden"
-                }
-                onClick={() => {
-                  handleSave();
-                  window.open("/premium", "_blank");
-                }}
-              >
-                Save Bucket List
-              </button>
+              {parsedList.length > 0 && (
+                userId ? (
+                  <button
+                    type="button"
+                    disabled={saving || saved || !isLoaded}
+                    className="w-full p-3 bg-green-500 text-white text-xl rounded-md hover:bg-green-600 mt-4 disabled:opacity-60"
+                    onClick={handleSave}
+                  >
+                    {saving ? "Saving..." : saved ? "List Saved" : "Save Bucket List"}
+                  </button>
+                ) : (
+                  <SignInButton mode="modal">
+                    <button type="button" className="w-full p-3 bg-green-500 text-white text-xl rounded-md mt-4">
+                      Sign in to save your list
+                    </button>
+                  </SignInButton>
+                )
+              )}
+              {saved && (
+                <p role="status" className="text-green-800">
+                  Your list is saved. <Link href="/save" className="underline">View saved lists</Link>
+                </p>
+              )}
 
               {error && <p className="mt-4 text-red-500">{error}</p>}
             </form>
@@ -280,7 +271,7 @@ export default function GenerateBucketPage() {
 
             {parsedList.length !== 0 && (
               <AddBtn
-                setParsedList={setParsedList}
+                setParsedList={(value) => { setSaved(false); setParsedList(value); }}
                 setBucketList={() => {}}
                 setLoading={setLoading}
                 setError={setError}

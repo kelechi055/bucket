@@ -29,13 +29,9 @@ export default function AddInput({
       const bucketItems = data.tFormatted;
 
       if (response.ok) {
-        //var bucketItems = parseBucketItems(data.bucketList);
-        bucketItems.map((item, index) => {
-          //console.log(`Item ${index + 1}:`);
-          Object.entries(item).forEach(([key, value]) => {
-            //console.log(`  ${key}: ${value}`);
-          });
-        });
+        if (!Array.isArray(bucketItems) || !bucketItems[0]?.title) {
+          throw new Error("No valid activity returned.");
+        }
         setParsedList((prevList) => [...(prevList || []), bucketItems[0]]);
       } else {
         setError(

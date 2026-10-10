@@ -309,7 +309,7 @@ export default function LandingPage() {
               color: "black",
             }}
           >
-            Here's what one of our 300+ users think.
+            Here&apos;s what one of our 300+ users think.
           </Typography>
         </div>
 
@@ -327,7 +327,7 @@ export default function LandingPage() {
                 backgroundColor: "FF00DC"
               }}
             >
-              <span style={{ color: "#FF00DC", fontWeight: "bold" }}>"</span>
+              <span style={{ color: "#FF00DC", fontWeight: "bold" }}>&quot;</span>
               This past summer was my first time interning at Meta in the Bay
               Area, and outside of work I had no idea what to do.{" "}
               <span
@@ -341,7 +341,7 @@ export default function LandingPage() {
               </span>{" "}
               gave me a curated list of things to try, from local food spots to
               scenic hikes, and made exploring way less overwhelming.
-              <span style={{ color: "#FF00DC", fontWeight: "bold" }}>"</span>
+              <span style={{ color: "#FF00DC", fontWeight: "bold" }}>&quot;</span>
               <br />
               <br />
               {/* Testimonial block */}
@@ -375,7 +375,7 @@ export default function LandingPage() {
         <div className="flex flex-col items-center">
           {/* LEFT ITEM */}
           <div className="flex flex-row items-left mt-10 mb-10">
-            <img src="/ipad.png" width={750} height={550}></img>
+            <img src="/ipad.png" alt="Bucket app preview on an iPad" width={750} height={550}></img>
           </div>
         </div>
       </Box>

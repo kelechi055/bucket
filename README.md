@@ -75,6 +75,9 @@ Whether you're solo, social, outdoorsy, or a foodie, **Bucket** has something fo
 
 To run Bucket locally:
 
+Use Node 24.12 or newer in the Node 24 LTS line. With nvm, run `nvm install`
+and `nvm use` from the project directory. Vercel should use Node 24.x.
+
 1. **Clone the repository**
 
 ```bash
@@ -110,6 +113,43 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to view the app.
 
+### Clerk authentication
+
+The app uses its existing Clerk application for sign-in, sign-up, and account
+controls. `/save` requires sign-in; visitors can still use `/generate`.
+Sign-in and sign-up pages are available at `/sign-in` and `/sign-up`.
+Clerk preserves the requested destination after login and otherwise sends users
+to `/generate`. Signing out returns to the home page.
+
+Use valid `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` credentials
+from the same existing Clerk application in your local and deployment environment.
+Do not commit real keys. Production deployments need that application's production
+keys and domain configuration. Run `npx -y clerk@latest doctor` to check setup.
+
+### Saved-list storage
+
+Signed-in users can save a generated list and revisit it at `/save` using the
+Saved Lists navigation link. Lists are stored in
+`users/{clerkUserId}/savedBucketLists`, newest first.
+
+To connect Clerk sign-in to Firebase:
+
+1. Enable Firebase Authentication in the `sunnylist-1f5a2` project.
+2. In Firebase Project Settings → Service Accounts, obtain a service account
+   key for that project. Set its `client_email` as `FIREBASE_CLIENT_EMAIL` and
+   its `private_key` as `FIREBASE_PRIVATE_KEY` in `.env.local` and your hosting
+   environment. Escaped `\n` line breaks are supported. Keep these values server-only.
+3. Publish the owner-only rules in `firestore.rules` through the Firestore Rules
+   tab, merging them with any existing application rules as needed.
+4. Restart the app, sign in, generate a list, click Save Bucket List, and open
+   Saved Lists. Check with another account that the list is not visible there.
+
+If your Clerk app already has a Firebase custom-token template, you can instead
+set `NEXT_PUBLIC_CLERK_FIREBASE_TEMPLATE` to its name. Its Firebase UID must match
+the Clerk user ID. No service account environment variables are needed in that case.
+Older lists under unrelated Firebase UIDs or the global `bucketLists` collection
+require an explicit ownership migration; they are not exposed to all users.
+
 ---
 
 ## 📜 Available Scripts
@@ -120,6 +160,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 | `build`       | Builds the app for production       |
 | `start`       | Starts the production server        |
 | `lint`        | Runs ESLint                         |
+| `typecheck`   | Checks TypeScript without emitting files |
 
 ---
 

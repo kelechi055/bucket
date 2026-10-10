@@ -2,9 +2,11 @@
 
 import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
 import { AppBar, Toolbar, Box, Button } from '@mui/material';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
   const { isSignedIn, isLoaded } = useUser();
+  const pathname = usePathname();
 
   if (!isLoaded) return null;
 
@@ -12,7 +14,7 @@ export default function Navbar() {
     <AppBar position="fixed" sx={{ backgroundColor: 'black' }}>
       <Toolbar
         className="font-fredoka"
-        sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}
+        sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', py: 1, gap: 1 }}
       >
         {/* Left side (Bucket Logo) */}
         <Box
@@ -38,18 +40,22 @@ export default function Navbar() {
         </Box>
 
         {/* Right side (Nav Items) */}
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
           {[
             { label: 'Home', href: '/' },
             { label: 'Generate', href: '/generate' },
+            { label: 'Saved Lists', href: '/save' },
             { label: 'GitHub', href: 'https://github.com/kelechi055/bucket' },
           ].map((item) => (
             <Button
               key={item.label}
               color="inherit"
               href={item.href}
+              aria-current={pathname === item.href ? 'page' : undefined}
               sx={{
                 textTransform: 'none',
+                backgroundColor: pathname === item.href ? 'white' : 'transparent',
+                color: pathname === item.href ? 'black' : 'inherit',
                 '&:hover': {
                   backgroundColor: 'white',
                   color: 'black',
@@ -73,7 +79,7 @@ export default function Navbar() {
               </SignUpButton>
             </>
           ) : (
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           )}
         </Box>
       </Toolbar>

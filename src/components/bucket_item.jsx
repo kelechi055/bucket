@@ -1,5 +1,4 @@
 import { FaMapMarkerAlt, FaTrashAlt } from "react-icons/fa";
-import { useEffect, useState } from "react";
 
 export default function BucketItem({
   title,
@@ -22,13 +21,6 @@ export default function BucketItem({
     "bg-fuchsia-500",
   ];
 
-  const [lnBr, setLnBr] = useState(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth < 414) {
-      setLnBr(<div className="line-br w-full leading-[1px]"></div>);
-    }
-  }, []);
 
   const hashStringToIndex = (str, max) => {
     let hash = 0;
@@ -62,7 +54,7 @@ export default function BucketItem({
           <span className="font-semibold text-black ml-4">Difficulty:</span>
           <span className="text-black">{difficulty}</span>
 
-          {lnBr}
+          <div className="line-br w-full leading-[1px] min-[414px]:hidden" />
 
           {tags?.map((tag, idx) => {
             const colorIndex = hashStringToIndex(tag, sunsetColors.length);
@@ -81,14 +73,15 @@ export default function BucketItem({
         <p className="text-gray-800 text-sm">{description}</p>
       </div>
 
-      <div className="flex flex-row items-end gap-3 mt-1">
+      {onClick && <div className="flex flex-row items-end gap-3 mt-1">
         <button
           onClick={onClick}
+          aria-label={`Remove ${title}`}
           className="flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-semi-bold"
         >
           <FaTrashAlt size={17} />
         </button>
-      </div>
+      </div>}
     </div>
   );
 }

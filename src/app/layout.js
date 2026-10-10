@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/react";
@@ -21,7 +22,6 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider>
       <html lang="en" className="h-full">
         <head>
           <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -42,13 +42,24 @@ export default function RootLayout({ children }) {
             }}
           />
         </head>
+        {/* Grammarly can add body attributes before React hydrates. */}
         <body
+          suppressHydrationWarning
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-transparent`}
         >
-          {children}
-          <Analytics />
+          <ClerkProvider
+            signInUrl="/sign-in"
+            signUpUrl="/sign-up"
+            signInFallbackRedirectUrl="/generate"
+            signUpFallbackRedirectUrl="/generate"
+            afterSignOutUrl="/"
+          >
+            <AppRouterCacheProvider>
+              {children}
+              <Analytics />
+            </AppRouterCacheProvider>
+          </ClerkProvider>
         </body>
       </html>
-    </ClerkProvider>
   );
 }
