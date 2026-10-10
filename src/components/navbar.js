@@ -44,6 +44,7 @@ export default function Navbar() {
           {[
             { label: 'Home', href: '/' },
             { label: 'Generate', href: '/generate' },
+            { label: 'City Guides', href: '/guides' },
             { label: 'Saved Lists', href: '/save' },
             { label: 'GitHub', href: 'https://github.com/kelechi055/bucket' },
           ].map((item) => (
