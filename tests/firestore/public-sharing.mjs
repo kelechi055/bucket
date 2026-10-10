@@ -1,0 +1,33 @@
+import fs from 'node:fs';
+import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
+import { doc, setDoc, getDoc, getDocs, collection, writeBatch, updateDoc, deleteDoc } from 'firebase/firestore';
+if (!process.env.FIRESTORE_EMULATOR_HOST) throw new Error('Run this test through npm run test:rules; a Firestore emulator is required.');
+const env = await initializeTestEnvironment({ projectId: 'demo-bucket-rules', firestore: { host: '127.0.0.1', port: 8089, rules: fs.readFileSync('firestore.rules','utf8') } });
+const owner = env.authenticatedContext('owner').firestore();
+const stranger = env.authenticatedContext('stranger').firestore();
+const guest = env.unauthenticatedContext().firestore();
+const path = 'users/owner/savedBucketLists/list1', sharedPath = 'sharedLists/abcdefghijklmnopqrst';
+const published = { ownerId: 'owner', sourceListId: 'list1', title: 'Test', bucketItems: [{ title: 'Museum' }], updatedAt: '2026-10-10' };
+try {
+  await assertSucceeds(setDoc(doc(owner,path), { title: 'Test', notes: {0:'Private'}, bucketItems: [{title:'Museum'}] }));
+  await assertFails(getDoc(doc(guest,path)));
+  await assertFails(getDoc(doc(stranger,path)));
+  await assertFails(updateDoc(doc(stranger,path), { title:'Hijacked' }));
+  await assertFails(setDoc(doc(owner,sharedPath), published));
+  const batch = writeBatch(owner); batch.update(doc(owner,path), {shareId:'abcdefghijklmnopqrst'}); batch.set(doc(owner,sharedPath),published);
+  await assertSucceeds(batch.commit());
+  const publicRead = await assertSucceeds(getDoc(doc(guest,sharedPath)));
+  if (publicRead.data().notes) throw Error('Notes leaked');
+  await assertFails(getDocs(collection(guest,'sharedLists')));
+  await assertFails(updateDoc(doc(stranger,sharedPath), {title:'Hijacked'}));
+  await assertFails(setDoc(doc(stranger,'sharedLists/12345678901234567890'), published));
+  await assertFails(updateDoc(doc(owner,sharedPath), {notes:'Private'}));
+  await assertSucceeds(updateDoc(doc(owner,sharedPath), {title:'Refreshed'}));
+  await assertSucceeds(updateDoc(doc(owner,path), {shareId:''}));
+  await assertFails(getDoc(doc(guest,sharedPath)));
+  await assertSucceeds(deleteDoc(doc(owner,sharedPath)));
+  const republish = writeBatch(owner); republish.update(doc(owner,path), {shareId:'abcdefghijklmnopqrst'}); republish.set(doc(owner,sharedPath),published); await assertSucceeds(republish.commit());
+  await assertSucceeds(deleteDoc(doc(owner,path)));
+  await assertFails(getDoc(doc(guest,sharedPath)));
+  console.log('PASS: private notes, owner-only edits, anonymous link reads, no listing, atomic publication, revocation, deletion.');
+} finally { await env.cleanup(); }

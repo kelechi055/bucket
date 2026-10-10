@@ -39,3 +39,21 @@ claim and configure it before a production launch.
 If saving returns `permission-denied`, check the Firestore rule and project.
 If it says saved lists are not configured, check the two server variables and
 restart/redeploy. Never make the entire database publicly readable to fix an error.
+
+## Notes, trip planning, and public links
+
+Progress filters, stop notes, and trip dates work with the existing owner-only saved-list rules. Public sharing additionally requires publishing the updated `firestore.rules` in the Firebase console's **Firestore Database → Rules** tab. Keep the existing private-list rule and add the `sharedLists` rule; never replace the rules with unrestricted access.
+
+Share opens a preview of what will be published. **Create public link** saves a read-only copy of the title and stops. Notes, profile details, trip dates, and completion progress are excluded. **Refresh public copy** updates that snapshot. **Disable link** revokes it; deleting the source list also disables access. A shared link does not require signing in, and public collection searches are denied.
+
+Run `npm test` for progress, date-validation, itinerary-ordering, and public-copy privacy checks.
+
+## Favorites, maps, custom stops, and collaboration
+
+Pin a list to keep it at the top of your collection; star individual stops and use **Favorite stops** to find them. **Add stop** lets you save your own places, descriptions, and website links. In the itinerary, drag a handle or use the arrows to reorder stops within a day. Reordering preserves each stop's notes, progress, and date.
+
+**Map view** locates stops on demand using Photon and displays an OpenStreetMap map with attribution. The map shows the matched place name and links to Google Maps so visitors can check a match. Unmatched stops remain accessible through their original map links. No map API key is required. The public Photon service is suitable for light usage and may throttle requests; configure a dedicated geocoder before substantially increasing traffic.
+
+**Collaborate → Create shared plan** makes a separate copy with live shared stops, dates, ordering, and progress. The original list remains private. The owner can create, replace, or disable editor invitations and remove collaborators. New members sign in at `/join/[inviteId]` and explicitly choose **Join shared plan**. Personal notes and favorites live in each member's own preference documents and are never readable by other members. Only the owner can publish a public copy, invite others, or delete the shared plan. Removing a member also disables the current invitation to prevent rejoining through the old link. Members can leave a plan themselves. A plan supports up to 20 members and 100 stops.
+
+Publish the latest `firestore.rules` to enable the new collections. Run `npm test` for planning logic and `npm run test:rules` for Firestore access tests (requires Java 21+). The rules tests require an isolated demo emulator and never connect to production data.

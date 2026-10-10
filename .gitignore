@@ -43,3 +43,8 @@ next-env.d.ts
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# Local Firebase emulator logs
+/firebase-debug.log*
+/firestore-debug.log*
+/ui-debug.log*

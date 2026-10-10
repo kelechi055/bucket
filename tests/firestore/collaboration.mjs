@@ -1,0 +1,45 @@
+import fs from 'node:fs';
+import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
+import { doc, setDoc, getDoc, getDocs, collection, query, where, updateDoc, writeBatch, arrayUnion, deleteDoc, onSnapshot } from 'firebase/firestore';
+if (!process.env.FIRESTORE_EMULATOR_HOST) throw new Error('Run this test through npm run test:rules; a Firestore emulator is required.');
+const env = await initializeTestEnvironment({ projectId:'demo-bucket-rules', firestore:{host:'127.0.0.1',port:8089,rules:fs.readFileSync('firestore.rules','utf8')} });
+const owner = env.authenticatedContext('owner').firestore(), friend = env.authenticatedContext('friend').firestore(), stranger = env.authenticatedContext('stranger').firestore(), guest = env.unauthenticatedContext().firestore();
+const teamPath='collaborativeLists/team', invitePath='listInvites/abcdefghijklmnopqrst';
+const plan={ownerId:'owner',memberIds:['owner'],title:'Trip',bucketItems:[{title:'A'},{title:'B'}],trip:{start:'',end:''},scheduledItems:{},completedItems:{},stopOrder:[0,1],destination:'Boston MA',timestamp:'2026-10-10',inviteId:'',shareId:''};
+try {
+ await assertSucceeds(setDoc(doc(owner,teamPath),plan));
+ await assertFails(getDoc(doc(friend,teamPath)));
+ await assertFails(getDoc(doc(guest,teamPath)));
+ await assertFails(updateDoc(doc(stranger,teamPath),{memberIds:arrayUnion('stranger'),joinToken:'bogus'}));
+ await assertFails(setDoc(doc(friend,'collaborativeLists/fake'),{...plan,ownerId:'owner',memberIds:['friend']}));
+ const invite=writeBatch(owner);invite.update(doc(owner,teamPath),{inviteId:'abcdefghijklmnopqrst'});invite.set(doc(owner,invitePath),{ownerId:'owner',teamId:'team',title:'Trip'});await assertSucceeds(invite.commit());
+ await assertFails(getDoc(doc(guest,invitePath)));
+ await assertSucceeds(getDoc(doc(friend,invitePath)));
+ await assertFails(getDocs(collection(friend,'listInvites')));
+ await assertSucceeds(updateDoc(doc(friend,teamPath),{memberIds:arrayUnion('friend'),joinToken:'abcdefghijklmnopqrst'}));
+ await assertSucceeds(getDoc(doc(friend,teamPath)));
+ await assertSucceeds(getDocs(query(collection(friend,'collaborativeLists'),where('memberIds','array-contains','friend'))));
+ await assertFails(getDocs(collection(friend,'collaborativeLists')));
+ await assertSucceeds(updateDoc(doc(friend,teamPath),{title:'Together',stopOrder:[1,0],'completedItems.0':true}));
+ // Notes and favorites are personal, never stored in the shared plan.
+ await assertSucceeds(setDoc(doc(owner,'users/owner/teamListPreferences/team'),{notes:{0:'Private'},favorite:true}));
+ await assertFails(getDoc(doc(friend,'users/owner/teamListPreferences/team')));
+ await assertSucceeds(setDoc(doc(friend,'users/friend/teamListPreferences/team'),{notes:{0:'My note'}}));
+ await assertFails(updateDoc(doc(friend,teamPath),{notes:{0:'Shared accident'}}));
+ await assertFails(updateDoc(doc(friend,teamPath),{memberIds:['owner','friend','stranger']}));
+ await assertFails(updateDoc(doc(friend,teamPath),{ownerId:'friend'}));
+ await assertFails(updateDoc(doc(friend,teamPath),{shareId:'abcdefghijklmnopqrst'}));
+ await assertFails(deleteDoc(doc(friend,teamPath)));
+ await assertFails(updateDoc(doc(friend,teamPath),{stopOrder:[0,0]}));
+ const live = new Promise((resolve,reject)=>{ const timeout=setTimeout(()=>{stop();reject(Error('Live update timed out'));},5000); const stop=onSnapshot(doc(friend,teamPath),snap=>{if(snap.data()?.title==='Live update'){clearTimeout(timeout);stop();resolve();}},reject); });
+ await assertSucceeds(updateDoc(doc(owner,teamPath),{title:'Live update'}));await live;
+ const publicCopy=writeBatch(owner);publicCopy.update(doc(owner,teamPath),{shareId:'12345678901234567890'});publicCopy.set(doc(owner,'sharedLists/12345678901234567890'),{ownerId:'owner',sourceListId:'team',sourceType:'team',title:'Public',bucketItems:plan.bucketItems,updatedAt:'2026-10-10'});await assertSucceeds(publicCopy.commit());
+ await assertSucceeds(getDoc(doc(guest,'sharedLists/12345678901234567890')));
+ await assertSucceeds(updateDoc(doc(owner,teamPath),{inviteId:''}));
+ await assertFails(updateDoc(doc(stranger,teamPath),{memberIds:arrayUnion('stranger'),joinToken:'abcdefghijklmnopqrst'}));
+ await assertSucceeds(updateDoc(doc(friend,teamPath),{memberIds:['owner']}));
+ await assertFails(getDoc(doc(friend,teamPath)));
+ await assertSucceeds(deleteDoc(doc(owner,teamPath)));
+ await assertFails(getDoc(doc(guest,'sharedLists/12345678901234567890')));
+ console.log('PASS: invitation joins, owner/editor roles, personal notes, live updates, membership query, revoked invites, leave, and public copies.');
+} finally { await env.cleanup(); }

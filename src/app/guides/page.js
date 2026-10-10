@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SignInButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { ArrowUpRight, Check, Compass, MapPin, Search, Utensils, Bookmark } from "lucide-react";
+import CityEvents from "./events";
 import Navbar from "../../components/navbar";
 import { cityGuides } from "../../data/city-guides";
 import { saveBucketList } from "../../lib/saved-lists";
@@ -52,10 +53,11 @@ function GuideDetail({ guide, userId, isLoaded, getToken }) {
       </div>
       <div className="p-5 sm:p-8">
         <div className="flex gap-2 rounded-2xl bg-gray-100 p-1.5" aria-label="Guide sections">
-          {[{ id: "sights", label: "Things to do", icon: Compass }, { id: "food", label: "Where to eat", icon: Utensils }].map(({ id, label, icon: Icon }) =>
+          {[{ id: "sights", label: "Things to do", icon: Compass }, { id: "food", label: "Where to eat", icon: Utensils }, { id: "events", label: "Events", icon: Bookmark }].map(({ id, label, icon: Icon }) =>
             <button key={id} type="button" aria-pressed={section === id} onClick={() => setSection(id)} className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold transition ${section === id ? "bg-white text-gray-950 shadow-sm" : "text-gray-500 hover:text-gray-950"}`}><Icon size={16} aria-hidden="true" />{label}</button>
           )}
         </div>
+        {section === "events" ? <CityEvents guide={guide} userId={userId} isLoaded={isLoaded} getToken={getToken} /> : <>
         <div className="mt-6 mb-5">
           <h3 className="text-xl font-bold">{section === "food" ? "Five stops worth making time for" : "Start with the city essentials"}</h3>
           <p className="mt-1 text-sm leading-relaxed text-gray-500">{section === "food" ? "A mix of meals and quick bites. Pick what fits your day; these are curated suggestions, not a ranking." : "Mix these stops into your trip at your own pace."}</p>
@@ -75,6 +77,7 @@ function GuideDetail({ guide, userId, isLoaded, getToken }) {
           </li>)}
         </ol>
         <p className="mt-6 border-t border-gray-100 pt-4 text-xs leading-relaxed text-gray-500">Check current hours, menus, and reservation requirements before visiting. Saving this guide adds all {guide.bucketItems.length} stops to your personal list.</p>
+        </>}
       </div>
     </section>
   );

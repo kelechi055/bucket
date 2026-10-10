@@ -1,8 +1,87 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
     match /users/{userId}/savedBucketLists/{listId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if signedIn() && request.auth.uid == userId;
+    }
+    match /users/{userId}/teamListPreferences/{teamId} {
+      allow read, write: if signedIn() && request.auth.uid == userId;
+    }
+    match /collaborativeLists/{teamId} {
+      function member() { return signedIn() && request.auth.uid in resource.data.memberIds; }
+      function owner() { return signedIn() && resource.data.ownerId == request.auth.uid; }
+      function validPlan() {
+        return request.resource.data.keys().hasOnly(['ownerId', 'memberIds', 'title', 'bucketItems', 'trip', 'scheduledItems', 'completedItems', 'stopOrder', 'destination', 'timestamp', 'updatedAt', 'inviteId', 'joinToken', 'shareId'])
+          && request.resource.data.title is string
+          && request.resource.data.bucketItems is list
+          && request.resource.data.bucketItems.size() <= 100
+          && request.resource.data.memberIds is list
+          && request.resource.data.memberIds.size() <= 20
+          && request.resource.data.memberIds.toSet().size() == request.resource.data.memberIds.size()
+          && request.resource.data.trip is map && request.resource.data.scheduledItems is map
+          && request.resource.data.completedItems is map && request.resource.data.stopOrder is list
+          && request.resource.data.stopOrder.size() == request.resource.data.bucketItems.size()
+          && request.resource.data.stopOrder.toSet().size() == request.resource.data.stopOrder.size()
+          && request.resource.data.destination is string
+          && request.resource.data.ownerId in request.resource.data.memberIds;
+      }
+      function joining() {
+        let token = request.resource.data.get('joinToken', '');
+        return signedIn() && token != '' && resource.data.inviteId == token
+          && get(/databases/$(database)/documents/listInvites/$(token)).data.teamId == teamId
+          && get(/databases/$(database)/documents/listInvites/$(token)).data.ownerId == resource.data.ownerId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberIds', 'joinToken'])
+          && request.auth.uid in request.resource.data.memberIds
+          && request.resource.data.memberIds.size() <= resource.data.memberIds.size() + 1
+          && request.resource.data.memberIds.removeAll([request.auth.uid]) == resource.data.memberIds.removeAll([request.auth.uid]);
+      }
+      function leaving() {
+        return member() && request.auth.uid != resource.data.ownerId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberIds'])
+          && request.resource.data.memberIds == resource.data.memberIds.removeAll([request.auth.uid]);
+      }
+      allow read: if member();
+      allow create: if signedIn() && validPlan() && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.memberIds == [request.auth.uid]
+        && request.resource.data.inviteId == '' && request.resource.data.shareId == '';
+      allow update: if validPlan() && request.resource.data.ownerId == resource.data.ownerId && (
+        owner() || leaving() || joining() ||
+        (member() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'bucketItems', 'trip', 'scheduledItems', 'completedItems', 'stopOrder', 'updatedAt']))
+      );
+      allow delete: if owner();
+    }
+    match /listInvites/{inviteId} {
+      function team(data) { return /databases/$(database)/documents/collaborativeLists/$(data.teamId); }
+      allow get: if signedIn() && get(team(resource.data)).data.inviteId == inviteId;
+      allow list: if false;
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.keys().hasOnly(['teamId', 'ownerId', 'title'])
+        && getAfter(team(request.resource.data)).data.ownerId == request.auth.uid
+        && getAfter(team(request.resource.data)).data.inviteId == inviteId;
+      allow update: if false;
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+    }
+    match /sharedLists/{shareId} {
+      function source(data) {
+        return data.get('sourceType', 'private') == 'team'
+          ? /databases/$(database)/documents/collaborativeLists/$(data.sourceListId)
+          : /databases/$(database)/documents/users/$(data.ownerId)/savedBucketLists/$(data.sourceListId);
+      }
+      allow get: if exists(source(resource.data)) && get(source(resource.data)).data.shareId == shareId;
+      allow list: if false;
+      function validPublication() {
+        return signedIn() && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.keys().hasOnly(['ownerId', 'sourceListId', 'sourceType', 'title', 'bucketItems', 'updatedAt'])
+        && request.resource.data.title is string && request.resource.data.bucketItems is list
+        && getAfter(source(request.resource.data)).data.shareId == shareId
+        && (request.resource.data.get('sourceType', 'private') != 'team' || getAfter(source(request.resource.data)).data.ownerId == request.auth.uid);
+      }
+      allow create: if validPublication();
+      allow update: if validPublication() && resource.data.ownerId == request.auth.uid
+        && request.resource.data.sourceListId == resource.data.sourceListId
+        && request.resource.data.get('sourceType', 'private') == resource.data.get('sourceType', 'private');
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
     }
   }
 }

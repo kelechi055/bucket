@@ -1,8 +1,9 @@
-import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc, updateDoc, getDocFromServer, setDoc, onSnapshot, query, where, arrayUnion, runTransaction } from "firebase/firestore";
 import { signInWithCustomToken } from "firebase/auth";
 import { auth, db } from "../../firebase";
+import { publicSnapshot, validateTrip, orderedStopIndices, customStop } from "./list-planning";
 
-async function connectUser(userId, getToken) {
+export async function connectUser(userId, getToken) {
   if (!userId) throw new Error("Sign in to access your saved lists.");
   await auth.authStateReady();
   if (auth.currentUser?.uid === userId) return;
@@ -46,7 +47,13 @@ export async function loadBucketLists(userId, getToken) {
 
 export async function deleteBucketList(userId, getToken, listId) {
   await connectUser(userId, getToken);
-  await deleteDoc(doc(db, "users", userId, "savedBucketLists", listId));
+  const ref = doc(db, "users", userId, "savedBucketLists", listId);
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) return;
+    if (snapshot.data().shareId) transaction.delete(doc(db, "sharedLists", snapshot.data().shareId));
+    transaction.delete(ref);
+  });
 }
 
 export async function renameBucketList(userId, getToken, listId, title) {
@@ -68,4 +75,201 @@ export async function setActivityComplete(userId, getToken, listId, index, compl
 export function dateMillis(value) {
   const millis = value?.toMillis ? value.toMillis() : new Date(value).getTime();
   return Number.isFinite(millis) ? millis : 0;
+}
+
+export async function saveActivityNote(userId, getToken, listId, index, note) {
+  if (!Number.isInteger(index) || index < 0 || typeof note !== "string" || note.length > 2000) throw new Error("Notes must be 2,000 characters or less.");
+  await connectUser(userId, getToken);
+  await updateDoc(doc(db, "users", userId, "savedBucketLists", listId), { [`notes.${index}`]: note.trim() });
+  return note.trim();
+}
+
+export async function saveTripPlan(userId, getToken, listId, trip, assignments) {
+  const dates = validateTrip(trip, assignments);
+  await connectUser(userId, getToken);
+  await updateDoc(doc(db, "users", userId, "savedBucketLists", listId), { trip: dates, scheduledItems: assignments });
+  return dates;
+}
+
+export async function publishList(userId, getToken, list) {
+  await connectUser(userId, getToken);
+  const ref = planReference(userId, list);
+  const candidateId = doc(collection(db, "sharedLists")).id;
+  return runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) throw new Error("This list no longer exists.");
+    const data = snapshot.data();
+    if (list.teamId && data.ownerId !== userId) throw new Error("Only the owner can publish this plan.");
+    const shareId = data.shareId || candidateId;
+    transaction.update(ref, { shareId });
+    transaction.set(doc(db, "sharedLists", shareId), {
+      ...publicSnapshot(data), ownerId: userId, sourceListId: list.teamId || list.id, sourceType: list.teamId ? "team" : "private", updatedAt: new Date().toISOString(),
+    });
+    return shareId;
+  });
+}
+
+export async function revokeListShare(userId, getToken, list) {
+  await connectUser(userId, getToken);
+  const ref = planReference(userId, list);
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) throw new Error("This list no longer exists.");
+    const shareId = snapshot.data().shareId;
+    transaction.update(ref, { shareId: "" });
+    if (shareId) transaction.delete(doc(db, "sharedLists", shareId));
+  });
+}
+
+export async function loadSharedList(shareId) {
+  if (!/^[A-Za-z0-9]{20}$/.test(shareId)) return null;
+  const snapshot = await getDocFromServer(doc(db, "sharedLists", shareId));
+  return snapshot.exists() ? publicSnapshot(snapshot.data()) : null;
+}
+
+export function planReference(userId, list) {
+  return list.teamId ? doc(db, "collaborativeLists", list.teamId) : doc(db, "users", userId, "savedBucketLists", list.id);
+}
+
+export async function updatePlan(userId, getToken, list, update) {
+  await connectUser(userId, getToken);
+  await updateDoc(planReference(userId, list), update);
+}
+
+export async function updatePersonalList(userId, getToken, list, update) {
+  await connectUser(userId, getToken);
+  if (list.teamId) await setDoc(doc(db, "users", userId, "teamListPreferences", list.teamId), update, { merge: true });
+  else await updateDoc(planReference(userId, list), update);
+}
+
+export async function addCustomStop(userId, getToken, list, draft) {
+  const item = customStop(draft, list.destination || list.userInfo?.location || "");
+  await connectUser(userId, getToken);
+  return runTransaction(db, async (transaction) => {
+    const ref = planReference(userId, list);
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) throw new Error("This list no longer exists.");
+    const data = snapshot.data(), items = data.bucketItems || [];
+    if (items.length >= 100) throw new Error("This list already has 100 stops. Create another list to add more.");
+    const update = { bucketItems: [...items, item], stopOrder: [...orderedStopIndices(data), items.length] };
+    transaction.update(ref, update);
+    return update;
+  });
+}
+
+export async function reorderStops(userId, getToken, list, order) {
+  await connectUser(userId, getToken);
+  await runTransaction(db, async (transaction) => {
+    const ref = planReference(userId, list);
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) throw new Error("This list no longer exists.");
+    const current = snapshot.data();
+    if (order.length !== current.bucketItems.length || new Set(order).size !== order.length || order.some((i) => !Number.isInteger(i) || i < 0 || i >= order.length)) {
+      throw new Error("The stops changed while you were reordering. Try again with the updated list.");
+    }
+    transaction.update(ref, { stopOrder: order });
+  });
+}
+
+export async function createCollaborativeList(userId, getToken, list) {
+  await connectUser(userId, getToken);
+  if (list.teamId) return list.teamId;
+  const ref = doc(collection(db, "collaborativeLists"));
+  const sourceRef = planReference(userId, list);
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(sourceRef);
+    if (!snapshot.exists()) throw new Error("This list no longer exists.");
+    const source = snapshot.data();
+    transaction.set(ref, {
+      ...publicSnapshot(source), ownerId: userId, memberIds: [userId],
+      // Keep the original stop indices, including those used by personal notes.
+      bucketItems: source.bucketItems || [], stopOrder: orderedStopIndices(source),
+      trip: source.trip || { start: "", end: "" }, scheduledItems: source.scheduledItems || {}, completedItems: source.completedItems || {},
+      destination: source.userInfo?.location || "", timestamp: new Date().toISOString(), inviteId: "", shareId: "",
+    });
+    transaction.set(doc(db, "users", userId, "teamListPreferences", ref.id), { notes: source.notes || {}, favorite: Boolean(source.favorite), favoriteItems: source.favoriteItems || {} });
+  });
+  return ref.id;
+}
+
+export async function watchCollaborativeLists(userId, getToken, onChange, onError) {
+  await connectUser(userId, getToken);
+  let personal = {}, plans = [], preferencesReady = false, plansReady = false;
+  const emit = () => { if (preferencesReady && plansReady) onChange(plans.map((entry) => ({ ...entry, ...(personal[entry.teamId] || {}) }))); };
+  const stopPreferences = onSnapshot(collection(db, "users", userId, "teamListPreferences"), (snapshot) => {
+    personal = Object.fromEntries(snapshot.docs.map((entry) => [entry.id, entry.data()]));
+    preferencesReady = true; emit();
+  }, onError);
+  const stopPlans = onSnapshot(query(collection(db, "collaborativeLists"), where("memberIds", "array-contains", userId)), (snapshot) => {
+    plans = snapshot.docs.map((entry) => ({ ...entry.data(), id: `team:${entry.id}`, teamId: entry.id }));
+    plansReady = true; emit();
+  }, onError);
+  return () => { stopPreferences(); stopPlans(); };
+}
+
+export async function createInvite(userId, getToken, list) {
+  await connectUser(userId, getToken);
+  const newId = doc(collection(db, "listInvites")).id;
+  await runTransaction(db, async (transaction) => {
+    const ref = planReference(userId, list), snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) throw new Error("This plan no longer exists.");
+    const data = snapshot.data();
+    if (data.ownerId !== userId) throw new Error("Only the owner can invite collaborators.");
+    if (data.inviteId) transaction.delete(doc(db, "listInvites", data.inviteId));
+    transaction.update(ref, { inviteId: newId });
+    transaction.set(doc(db, "listInvites", newId), { teamId: list.teamId, ownerId: userId, title: data.title || "Shared adventure" });
+  });
+  return newId;
+}
+
+export async function disableInvite(userId, getToken, list) {
+  await connectUser(userId, getToken);
+  await runTransaction(db, async (transaction) => {
+    const ref = planReference(userId, list), snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) throw new Error("This plan no longer exists.");
+    if (snapshot.data().inviteId) transaction.delete(doc(db, "listInvites", snapshot.data().inviteId));
+    transaction.update(ref, { inviteId: "" });
+  });
+}
+
+export async function loadInvite(userId, getToken, inviteId) {
+  if (!/^[A-Za-z0-9]{20}$/.test(inviteId)) return null;
+  await connectUser(userId, getToken);
+  const snapshot = await getDocFromServer(doc(db, "listInvites", inviteId));
+  return snapshot.exists() ? snapshot.data() : null;
+}
+
+export async function joinCollaborativeList(userId, getToken, inviteId) {
+  const invite = await loadInvite(userId, getToken, inviteId);
+  if (!invite) throw new Error("This invitation is unavailable.");
+  await updateDoc(doc(db, "collaborativeLists", invite.teamId), { memberIds: arrayUnion(userId), joinToken: inviteId });
+  return invite.teamId;
+}
+
+export async function removeCollaborator(userId, getToken, list, memberId) {
+  await connectUser(userId, getToken);
+  await runTransaction(db, async (transaction) => {
+    const ref = planReference(userId, list), snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) throw new Error("This plan no longer exists.");
+    const data = snapshot.data();
+    if (memberId === data.ownerId) throw new Error("The owner cannot leave the shared plan.");
+    const update = { memberIds: data.memberIds.filter((id) => id !== memberId) };
+    if (data.ownerId === userId && memberId !== userId && data.inviteId) {
+      transaction.delete(doc(db, "listInvites", data.inviteId));
+      update.inviteId = "";
+    }
+    transaction.update(ref, update);
+  });
+}
+
+export async function deleteCollaborativeList(userId, getToken, list) {
+  await connectUser(userId, getToken);
+  await runTransaction(db, async (transaction) => {
+    const ref = planReference(userId, list), snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) return;
+    const data = snapshot.data();
+    if (data.shareId) transaction.delete(doc(db, "sharedLists", data.shareId));
+    if (data.inviteId) transaction.delete(doc(db, "listInvites", data.inviteId));
+    transaction.delete(ref);
+  });
 }

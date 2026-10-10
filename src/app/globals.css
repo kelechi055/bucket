@@ -64,3 +64,13 @@ body {
   0% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }
 } */
+
+.leaflet-tooltip.bucket-map-number {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #451a03;
+  font-weight: 700;
+  padding: 0;
+}
+.leaflet-tooltip.bucket-map-number::before { display: none; }
