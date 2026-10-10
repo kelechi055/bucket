@@ -18,8 +18,34 @@ import { CalendarExport, NearbyDiscoveries } from "./discovery-tools";
 import { CustomStopForm, ReorderItinerary, CollaborationPanel } from "./collection-tools";
 const ListMap = dynamic(() => import("./list-map"), { ssr: false, loading: () => <p role="status" className="p-4 text-sm text-stone-500">Loading map…</p> });
 
-function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, onPublish, onRevoke, onFavorite, onStopFavorite, onAdd, onReorder, onCreateTeam, onInvite, onDisableInvite, onRemoveMember, onBudget, userId, getToken }) {
+function SavedListCard({ activePanel, onPanelChange, list, onDelete, onRename, onComplete, onNote, onTrip, onPublish, onRevoke, onFavorite, onStopFavorite, onAdd, onReorder, onCreateTeam, onInvite, onDisableInvite, onRemoveMember, onBudget, userId, getToken }) {
   const card = useRef(null);
+  const panel = activePanel?.userId === userId && activePanel?.id === list.id ? activePanel.type : null;
+  function setPanel(type, open) {
+    if (open) card.current?.closest('main')?.querySelectorAll('details[name="saved-list-accordion"][open]').forEach((details) => { details.open = false; });
+    onPanelChange((previous) => open ? { userId, id: list.id, type } : previous?.id === list.id && previous?.type === type ? null : previous);
+  }
+  const budgeting = panel === "budgeting";
+  const setBudgeting = (open) => setPanel("budgeting", open);
+  const voting = panel === "voting";
+  const setVoting = (open) => setPanel("voting", open);
+  const traveling = panel === "traveling";
+  const setTraveling = (open) => setPanel("traveling", open);
+  const confirming = panel === "confirming";
+  const setConfirming = (open) => setPanel("confirming", open);
+  const planning = panel === "planning";
+  const setPlanning = (open) => setPanel("planning", open);
+  const sharing = panel === "sharing";
+  const setSharing = (open) => setPanel("sharing", open);
+  const discovering = panel === "discovering";
+  const setDiscovering = (open) => setPanel("discovering", open);
+  const adding = panel === "adding";
+  const setAdding = (open) => setPanel("adding", open);
+  const collaborating = panel === "collaborating";
+  const setCollaborating = (open) => setPanel("collaborating", open);
+  const renaming = panel === "renaming";
+  const setRenaming = (open) => setPanel("renaming", open);
+
   useEffect(() => {
     if (window.location.hash === `#list-${encodeURIComponent(list.id)}` && card.current) {
       const details = card.current.querySelector('details');
@@ -27,22 +53,14 @@ function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, o
       card.current.scrollIntoView({ block: 'start' });
     }
   }, [list.id]);
-  const [budgeting, setBudgeting] = useState(false), [voting, setVoting] = useState(false), [traveling, setTraveling] = useState(false);
   const [lastCompletion, setLastCompletion] = useState(null);
-  const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const title = listTitle(list);
-  const [planning, setPlanning] = useState(false);
-  const [sharing, setSharing] = useState(false);
-  const [discovering, setDiscovering] = useState(false);
-  const [adding, setAdding] = useState(false);
-  const [collaborating, setCollaborating] = useState(false);
   const [mapView, setMapView] = useState(false);
   const [favoriteStopsOnly, setFavoriteStopsOnly] = useState(false);
   const owner = !list.teamId || list.ownerId === userId;
-  const [renaming, setRenaming] = useState(false);
   const [draft, setDraft] = useState(title);
   const items = Array.isArray(list.bucketItems) ? list.bucketItems : [];
   const completedCount = items.filter((_, index) => list.completedItems?.[index] === true).length;
@@ -89,7 +107,7 @@ function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, o
 
   return (
     <article ref={card} id={`list-${encodeURIComponent(list.id)}`} className="scroll-mt-24 overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
-      <details className="group">
+      <details name="saved-list-accordion" className="group" onToggle={(event) => { if (event.target === event.currentTarget && event.currentTarget.open) onPanelChange(null); }}>
         <summary className="flex cursor-pointer list-none items-start gap-3 p-4 sm:gap-4 sm:p-5 focus-visible:outline-2 focus-visible:outline-amber-600 sm:p-7 [&::-webkit-details-marker]:hidden">
           <span className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-800"><Bookmark size={22} aria-hidden="true" /></span>
           <span className="min-w-0 flex-1">
@@ -137,9 +155,9 @@ function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, o
         <button type="button" disabled={busy} onClick={() => setDiscovering(!discovering)} aria-expanded={discovering} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100"><Compass size={15} aria-hidden="true" />Nearby discoveries</button>
         <button type="button" disabled={busy} onClick={() => setAdding(!adding)} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100"><Plus size={15} aria-hidden="true" />Add stop</button>
         <button type="button" disabled={busy} onClick={() => setCollaborating(!collaborating)} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100"><Users size={15} aria-hidden="true" />Collaborate</button>
-        <button type="button" onClick={() => setBudgeting(!budgeting)} className="min-h-11 rounded-xl px-3 py-2 text-sm text-stone-600">Budget</button>
-        {list.teamId && <button type="button" onClick={() => setVoting(!voting)} className="min-h-11 rounded-xl px-3 py-2 text-sm text-stone-600">Vote on stops</button>}
-        <button type="button" onClick={() => setTraveling(!traveling)} className="min-h-11 rounded-xl px-3 py-2 text-sm text-stone-600">Travel times</button>
+        <button type="button" disabled={busy} onClick={() => setBudgeting(!budgeting)} className="min-h-11 rounded-xl px-3 py-2 text-sm text-stone-600">Budget</button>
+        {list.teamId && <button type="button" disabled={busy} onClick={() => setVoting(!voting)} className="min-h-11 rounded-xl px-3 py-2 text-sm text-stone-600">Vote on stops</button>}
+        <button type="button" disabled={busy} onClick={() => setTraveling(!traveling)} className="min-h-11 rounded-xl px-3 py-2 text-sm text-stone-600">Travel times</button>
         {!confirming && <button type="button" disabled={busy} onClick={() => { setConfirming(true); setRenaming(false); }} className="sm:ml-auto inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-red-700 hover:bg-red-50 disabled:opacity-50" aria-label={`Delete ${title}`}><Trash2 size={15} aria-hidden="true" />{owner ? "Delete" : "Leave plan"}</button>}
       </div>
       {budgeting && <BudgetPanel list={list} onSave={(budget) => onBudget(list.id, budget)} onClose={() => setBudgeting(false)} />}
@@ -173,6 +191,7 @@ function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, o
 }
 
 export default function SavedBucketLists() {
+  const [activePanel, setActivePanel] = useState(null);
   const { userId, isLoaded, getToken } = useAuth();
   const [result, setResult] = useState({ userId: null, attempt: -1, lists: [], error: null });
   const [attempt, setAttempt] = useState(0);
@@ -340,7 +359,7 @@ export default function SavedBucketLists() {
           <div className="space-y-5">
             {visibleLists.length === 0 && <div className="rounded-2xl border border-stone-200 bg-white p-6"><p className="text-stone-500">No lists match this search and filter.</p><button type="button" onClick={() => { setQuery(""); setFilter("all"); }} className="mt-3 text-sm font-semibold text-amber-800">Show all lists</button></div>}
             {visibleLists.map((list) => (
-              <SavedListCard key={`${userId}:${list.id}`} list={list} onDelete={removeList} onRename={renameList} onComplete={completeActivity} onNote={noteActivity} onTrip={planTrip} onPublish={publish} onRevoke={revoke} onFavorite={favoriteList} onStopFavorite={favoriteStop} onAdd={addStop} onReorder={reorder} onCreateTeam={createTeam} onInvite={invite} onDisableInvite={stopInvites} onRemoveMember={removeMember} onBudget={saveBudget} userId={userId} getToken={getToken} />
+              <SavedListCard activePanel={activePanel} onPanelChange={setActivePanel} key={`${userId}:${list.id}`} list={list} onDelete={removeList} onRename={renameList} onComplete={completeActivity} onNote={noteActivity} onTrip={planTrip} onPublish={publish} onRevoke={revoke} onFavorite={favoriteList} onStopFavorite={favoriteStop} onAdd={addStop} onReorder={reorder} onCreateTeam={createTeam} onInvite={invite} onDisableInvite={stopInvites} onRemoveMember={removeMember} onBudget={saveBudget} userId={userId} getToken={getToken} />
             ))}
           </div>
         )}
