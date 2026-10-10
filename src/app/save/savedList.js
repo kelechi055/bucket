@@ -123,7 +123,7 @@ function SavedListCard({ list, onDelete, onRename, onComplete, onNote, onTrip, o
               <span className={list.completedItems?.[index] === true ? "text-amber-800" : ""}>{list.completedItems?.[index] === true ? "Completed" : `Stop ${String(orderedStopIndices(list).indexOf(index) + 1).padStart(2, "0")}`}: {item.title}</span>
             </label>
             <button type="button" disabled={busy} aria-pressed={Boolean(list.favoriteItems?.[index])} aria-label={`${list.favoriteItems?.[index] ? "Unfavorite" : "Favorite"} ${item.title}`} onClick={() => favorite(index)} className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-amber-800 hover:bg-amber-100"><Star size={14} fill={list.favoriteItems?.[index] ? "currentColor" : "none"} aria-hidden="true" />{list.favoriteItems?.[index] ? "Favorite stop" : "Favorite"}</button>
-            <BucketItem {...item} onClick={undefined} />
+            <BucketItem {...item} destination={list.destination || list.userInfo?.location || ""} onClick={undefined} />
             <StopNote value={list.notes?.[index] || ""} title={item.title} onSave={(note) => onNote(list.id, index, note)} />
           </div>; }) : <p className="text-sm text-stone-500">No activities in this list.</p>}
           {favoriteStopsOnly && !items.some((_, index) => list.favoriteItems?.[index]) && <p className="text-sm text-stone-500">Star a stop to find it here.</p>}

@@ -1,6 +1,8 @@
+import { mapsSearchUrl } from "../lib/list-planning";
 import { FaMapMarkerAlt, FaTrashAlt } from "react-icons/fa";
 
-export default function BucketItem({ title, description, rating, difficulty, tags, location, website, cuisine, onClick }) {
+export default function BucketItem({ title, description, rating, difficulty, tags, location, website, cuisine, destination, onClick }) {
+  const mapUrl = mapsSearchUrl({ title, location }, destination);
   return (
     <article className="my-3 w-full rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -17,7 +19,7 @@ export default function BucketItem({ title, description, rating, difficulty, tag
         {tags?.map((tag, index) => <span key={index} className="rounded-full bg-gray-100 px-2.5 py-1 font-medium text-gray-600">{tag}</span>)}
       </div>
       <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-gray-100 pt-3 text-sm">
-        {location && <a href={location} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold text-amber-800 hover:underline"><FaMapMarkerAlt size={13} />View on map ↗</a>}
+        {mapUrl && <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold text-amber-800 hover:underline"><FaMapMarkerAlt size={13} />View on map ↗</a>}
         {website && <a href={website} target="_blank" rel="noopener noreferrer" className="font-medium text-gray-600 hover:underline">Menu & details ↗</a>}
       </div>
     </article>

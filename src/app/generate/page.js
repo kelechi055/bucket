@@ -295,6 +295,7 @@ export default function GenerateBucketPage() {
                   rating={item.rating}
                   difficulty={item.difficulty}
                   location={item.location}
+                  destination={userInfo.location}
                   onClick={() => removeElement(index)}
                 />
               ))}

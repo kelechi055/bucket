@@ -92,3 +92,9 @@ export function stopQuery(item, destination = "") {
   } catch { /* A stop can still be located by its name. */ }
   return [item.title, destination].filter(Boolean).join(" ").slice(0, 250);
 }
+
+// Build map links ourselves instead of trusting generated short/dynamic URLs.
+export function mapsSearchUrl(item, destination = "") {
+  const query = stopQuery(item, destination).trim();
+  return query ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` : "";
+}

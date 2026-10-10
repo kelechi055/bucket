@@ -1,3 +1,4 @@
+import { mapsSearchUrl } from "../../../lib/list-planning";
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
@@ -75,7 +76,7 @@ export async function POST(request) {
     
     Each activity object should have the following keys:
     - title: string – a short, engaging name for the activity
-    - location: string - a link to the google maps location of the bucketlist item
+    - location: string - a full Google Maps search URL: https://www.google.com/maps/search/?api=1&query=URL_ENCODED_PLACE_NAME_AND_CITY. Include the venue or address and city in the query. Never invent a short link or use maps.app.goo.gl, goo.gl, or dynamic links.
     - description: string – a concise and helpful description of the activity
     - rating: number – a float between 1.0 and 10.0 (e.g., 7.5). This should reflect how **well the activity matches the user's preferences** and how **unique or creative** the activity is. 10 = highly personalized and unique, 1 = generic and loosely related.
     - difficulty: string – one of the following: "easy", "medium", "hard", or "epic". Estimate the overall effort required to complete the activity (physical, social, or planning-related).
@@ -117,7 +118,9 @@ export async function POST(request) {
     }
 
     // Send the generated bucket list as a response
-    const bucketList = response.text;
+    const items = JSON.parse(response.text.replace(/```json\s*|\s*```/g, ""));
+    if (!Array.isArray(items) || items.some((item) => !item || typeof item.title !== "string")) throw new Error("Invalid generated activities.");
+    const bucketList = JSON.stringify(items.map((item) => ({ ...item, location: mapsSearchUrl(item, location) })));
 
     return NextResponse.json({ bucketList });
   } catch (error) {

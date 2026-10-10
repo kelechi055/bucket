@@ -1,3 +1,4 @@
+import { mapsSearchUrl } from "../../../lib/list-planning";
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
@@ -45,7 +46,7 @@ export async function POST(request) {
     
 The one activity object should have the following keys:
     - title: string – a short, engaging name for the activity
-    - location: string - a link to the google maps location of the bucketlist item
+    - location: string - a full Google Maps search URL: https://www.google.com/maps/search/?api=1&query=URL_ENCODED_PLACE_NAME_AND_CITY. Include the venue or address and city in the query. Never invent a short link or use maps.app.goo.gl, goo.gl, or dynamic links.
     - description: string – a concise and helpful description of the activity
     - rating: number – a float between 1.0 and 10.0 (e.g., 7.5). This should reflect how **well the activity matches the user's preferences** and how **unique or creative** the activity is. 10 = highly personalized and unique, 1 = generic and loosely related.
     - difficulty: string – one of the following: "easy", "medium", "hard", or "epic". Estimate the overall effort required to complete the activity (physical, social, or planning-related).
@@ -76,7 +77,7 @@ Description: ${description}
       return NextResponse.json({ error: "Unable to format this activity. Please try again." }, { status: 502 });
     }
 
-    return NextResponse.json({ tFormatted }); // now `activity` is an object with your desired fields
+    return NextResponse.json({ tFormatted: tFormatted.map((item) => ({ ...item, location: mapsSearchUrl(item) })) }); // now `activity` is an object with your desired fields
   } catch (error) {
     console.error("Error generating event details:", error);
     return NextResponse.json(

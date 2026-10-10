@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { progressStatus, validateTrip, itineraryGroups, publicSnapshot } from '../src/lib/list-planning.js';
+import { progressStatus, validateTrip, itineraryGroups, publicSnapshot, mapsSearchUrl } from '../src/lib/list-planning.js';
 
 test('filters handle empty, untouched, partially complete and completed lists', () => {
   assert.equal(progressStatus({ bucketItems: [] }), 'not-started');
@@ -54,4 +54,15 @@ test('custom stops validate titles and websites and build an encoded map query',
   const stop = customStop({title:'Cafe & Pie',address:'12 Main Street',category:'Restaurants',website:'https://example.com'}, 'Boston MA');
   assert.equal(stopQuery(stop), '12 Main Street Boston MA');
   assert.deepEqual(stop.tags, ['Restaurants']);
+});
+
+test('map links replace invented dynamic URLs, preserve existing map queries, and safely encode locations', () => {
+  const url = new URL(mapsSearchUrl({ title: 'Picnic & cafés', location: 'https://maps.app.goo.gl/invented' }, 'Austin, TX'));
+  assert.equal(url.origin, 'https://www.google.com');
+  assert.equal(url.pathname, '/maps/search/');
+  assert.equal(url.searchParams.get('api'), '1');
+  assert.equal(url.searchParams.get('query'), 'Picnic & cafés Austin, TX');
+  assert.equal(new URL(mapsSearchUrl({ title: 'A', location: 'https://www.google.com/maps/search/?api=1&query=Zilker%20Park%20Austin' })).searchParams.get('query'), 'Zilker Park Austin');
+  assert.equal(new URL(mapsSearchUrl({ title: 'Museum', location: 'javascript:alert(1)' }, 'Boston')).searchParams.get('query'), 'Museum Boston');
+  assert.equal(mapsSearchUrl({}), '');
 });
