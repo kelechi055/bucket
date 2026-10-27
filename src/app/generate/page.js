@@ -40,7 +40,7 @@ function PreferenceField({ field, value, onChange }) {
       <input type="checkbox" checked={selected.includes(option)} onChange={(event) => { const next = event.target.checked ? [...selected, option] : selected.filter((entry) => entry !== option); setSelected(next); updateMultiple(next, custom); }} className="sr-only" />
       <span aria-hidden="true" className="preference-check flex h-4 w-4 shrink-0 items-center justify-center rounded border">{selected.includes(option) && <Check size={12} strokeWidth={3} />}</span><span>{option}</span>
     </label>)}</div>
-    <label htmlFor={`${field.name}-custom`} className="theme-muted mt-3 block text-xs">Something else? <span className="opacity-80">Optional</span></label><input id={`${field.name}-custom`} value={custom} maxLength={500} onChange={(event) => { setCustom(event.target.value); updateMultiple(selected, event.target.value); }} placeholder="Add your own interests…" className={`${control} mt-1.5`} />
+    <label htmlFor={`${field.name}-custom`} className="theme-muted mt-3 block text-xs">Something else? <span className="opacity-80">Optional</span></label><input id={`${field.name}-custom`} value={custom} maxLength={500} onKeyDown={(event) => { if (event.key === "Enter") event.preventDefault(); }} onChange={(event) => { setCustom(event.target.value); updateMultiple(selected, event.target.value); }} placeholder="Add your own interests…" className={`${control} mt-1.5`} />
   </fieldset>;
   return <div className="min-w-0"><label htmlFor={field.name} className={label}><span aria-hidden="true" className={`mr-2 inline-block h-1.5 w-1.5 rounded-full ${field.border.replace("border-", "bg-")}`} />{field.label}</label>
     {options ? <><div className="relative"><select id={field.name} name={field.name} value={customMode ? "__custom" : value} onChange={(event) => { const isCustom = event.target.value === "__custom"; setCustomMode(isCustom); update(isCustom ? "" : event.target.value); }} className={`${control} appearance-none pr-10 ${!value && !customMode ? "is-placeholder" : ""}`}>
@@ -157,10 +157,10 @@ export default function GenerateBucketPage() {
     }
   };
 
-  if (loading) return <SummerLoader />;
-
   return (
     <>
+    {loading && <SummerLoader />}
+    <div hidden={loading}>
     <Navbar />
     <Box
       sx={{
@@ -314,6 +314,7 @@ export default function GenerateBucketPage() {
         </div>
       </div>
     </Box>
+    </div>
     </>
   );
 }
