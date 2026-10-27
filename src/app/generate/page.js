@@ -27,20 +27,39 @@ function PreferenceField({ field, value, onChange }) {
   const [customMode, setCustomMode] = useState(false);
   const [selected, setSelected] = useState([]);
   const [custom, setCustom] = useState("");
+  const [customOptions, setCustomOptions] = useState([]);
   const options = choices[field.name];
   const multiple = field.name === "interests" || field.name === "categories";
   const control = "preference-control w-full rounded-xl border px-4 py-3 text-base font-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600";
   function update(next) { onChange({ target: { name: field.name, value: next } }); }
   function updateMultiple(nextSelected, nextCustom) { update([...nextSelected, nextCustom.trim()].filter(Boolean).join(", ")); }
+  function addCustom() {
+    const entries = custom.split(",").map((entry) => entry.trim()).filter(Boolean);
+    if (!entries.length) return;
+    const available = [...options, ...customOptions];
+    const additions = [];
+    const next = [...selected];
+    for (const entry of entries) {
+      const existing = [...available, ...additions].find((option) => option.toLowerCase() === entry.toLowerCase());
+      const option = existing || entry;
+      if (!existing) additions.push(option);
+      if (!next.includes(option)) next.push(option);
+    }
+    setCustomOptions([...customOptions, ...additions]);
+    setSelected(next);
+    setCustom("");
+    updateMultiple(next, "");
+  }
   const label = "preference-label mb-2 block text-sm font-medium";
   if (multiple) return <fieldset className="preference-group min-w-0 border-y py-5 sm:col-span-2">
     <legend className="preference-label px-1 text-sm font-medium">{field.label}</legend>
     <p className="theme-muted mb-3 text-xs">Pick as many as you like.</p>
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{options.map((option) => <label key={option} className={`preference-choice relative flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition focus-within:ring-2 focus-within:ring-amber-500 ${selected.includes(option) ? "is-selected" : ""}`}>
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{[...options, ...customOptions].map((option) => <label key={option} className={`preference-choice relative flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition focus-within:ring-2 focus-within:ring-amber-500 ${selected.includes(option) ? "is-selected" : ""}`}>
       <input type="checkbox" checked={selected.includes(option)} onChange={(event) => { const next = event.target.checked ? [...selected, option] : selected.filter((entry) => entry !== option); setSelected(next); updateMultiple(next, custom); }} className="sr-only" />
       <span aria-hidden="true" className="preference-check flex h-4 w-4 shrink-0 items-center justify-center rounded border">{selected.includes(option) && <Check size={12} strokeWidth={3} />}</span><span>{option}</span>
     </label>)}</div>
-    <label htmlFor={`${field.name}-custom`} className="theme-muted mt-3 block text-xs">Something else? <span className="opacity-80">Optional</span></label><input id={`${field.name}-custom`} value={custom} maxLength={500} onKeyDown={(event) => { if (event.key === "Enter") event.preventDefault(); }} onChange={(event) => { setCustom(event.target.value); updateMultiple(selected, event.target.value); }} placeholder="Add your own interests…" className={`${control} mt-1.5`} />
+    <label htmlFor={`${field.name}-custom`} className="theme-muted mt-3 block text-xs">Something else? <span className="opacity-80">Optional</span></label><div className="mt-1.5 flex items-center gap-2"><input id={`${field.name}-custom`} value={custom} maxLength={500} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); if (!event.nativeEvent.isComposing) addCustom(); } }} onChange={(event) => { setCustom(event.target.value); updateMultiple(selected, event.target.value); }} placeholder={field.name === "categories" ? "Add your own categories…" : "Add your own interests…"} aria-describedby={`${field.name}-custom-help`} className={`${control} min-w-0`} /><button type="button" onClick={addCustom} disabled={!custom.trim()} aria-label={field.name === "categories" ? "Add custom categories" : "Add custom interests"} className="shrink-0 rounded-xl bg-amber-300 px-4 py-3 text-sm font-semibold text-amber-950 hover:bg-amber-400 disabled:opacity-50">Add</button></div>
+    <p id={`${field.name}-custom-help`} className="theme-muted mt-2 text-xs">Press Enter or tap Add. Separate multiple choices with commas.</p>
   </fieldset>;
   return <div className="min-w-0"><label htmlFor={field.name} className={label}><span aria-hidden="true" className={`mr-2 inline-block h-1.5 w-1.5 rounded-full ${field.border.replace("border-", "bg-")}`} />{field.label}</label>
     {options ? <><div className="relative"><select id={field.name} name={field.name} value={customMode ? "__custom" : value} onChange={(event) => { const isCustom = event.target.value === "__custom"; setCustomMode(isCustom); update(isCustom ? "" : event.target.value); }} className={`${control} appearance-none pr-10 ${!value && !customMode ? "is-placeholder" : ""}`}>
